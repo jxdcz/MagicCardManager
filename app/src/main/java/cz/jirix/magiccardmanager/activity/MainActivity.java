@@ -1,8 +1,9 @@
-package cz.jirix.magiccardmanager;
+package cz.jirix.magiccardmanager.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import cz.jirix.magiccardmanager.R;
 import cz.jirix.magiccardmanager.fragments.SearchFragment;
 
 /**

@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cz.jirix.magiccardmanager.model.MagicColor;
+import cz.jirix.magiccardmanager.model.MagicRarity;
 import cz.jirix.magiccardmanager.model.MagicSet;
 import cz.jirix.magiccardmanager.webservices.MagicCardApi;
+import cz.jirix.magiccardmanager.webservices.MagicSetsResponse;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,8 +26,9 @@ public class AddInfoRepository implements IRepository{
 
     private MutableLiveData<List<MagicColor>> mLiveColors = new MutableLiveData<>();
     private MutableLiveData<List<MagicSet>> mLiveSets = new MutableLiveData<>();
+    private MutableLiveData<List<MagicRarity>> mLiveRarities = new MutableLiveData<>();
 
-    public AddInfoRepository(MagicCardApi webservice){
+    public AddInfoRepository(MagicCardApi webservice) {
         mMagicWebservice = webservice;
 
         //TODO persistent
@@ -36,10 +39,25 @@ public class AddInfoRepository implements IRepository{
         colors.add(new MagicColor("R", "Red"));
         colors.add(new MagicColor("B", "Blue"));
         setColors(colors);
+
+        List<MagicRarity> rarities = new ArrayList<>();
+        rarities.add(new MagicRarity("Land"));
+        rarities.add(new MagicRarity("Common"));
+        rarities.add(new MagicRarity("Uncommon"));
+        rarities.add(new MagicRarity("Rare"));
+        rarities.add(new MagicRarity("Mythic Rare"));
+        rarities.add(new MagicRarity("Timeshifted"));
+        rarities.add(new MagicRarity("Masterpiece"));
+        setRarities(rarities);
+
     }
 
     public void setColors(List<MagicColor> colors){
         mLiveColors.postValue(colors);
+    }
+
+    public void setRarities(List<MagicRarity> rarities) {
+        mLiveRarities.postValue(rarities);
     }
 
     public LiveData<List<MagicColor>> getLiveColors() {
@@ -52,15 +70,17 @@ public class AddInfoRepository implements IRepository{
     }
 
     private void loadSetsFromWebservice() {
-        mMagicWebservice.getSetsCall().enqueue(new Callback<List<MagicSet>>() {
+        mMagicWebservice.getSetsCall().enqueue(new Callback<MagicSetsResponse>() {
             @Override
-            public void onResponse(@NonNull Call<List<MagicSet>> call, @NonNull Response<List<MagicSet>> response) {
-                mLiveSets.postValue(response.body());
-                saveSetsToDb(response.body());
+            public void onResponse(@NonNull Call<MagicSetsResponse> call, @NonNull Response<MagicSetsResponse> response) {
+                if (response.body() != null) {
+                    List<MagicSet> list = response.body().getSets();
+                    mLiveSets.postValue(list);
+                    saveSetsToDb(list);
+                }
             }
-
             @Override
-            public void onFailure(@NonNull Call<List<MagicSet>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<MagicSetsResponse> call, @NonNull Throwable t) {
                 Log.d(TAG, "Error fetching sets from remote service: " + t.getMessage());
             }
         });

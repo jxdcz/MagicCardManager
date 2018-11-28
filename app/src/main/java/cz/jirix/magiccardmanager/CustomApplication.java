@@ -2,8 +2,8 @@ package cz.jirix.magiccardmanager;
 
 import android.app.Application;
 
-import cz.jirix.magiccardmanager.injection.RepositoryProvider;
-import cz.jirix.magiccardmanager.injection.WebserviceProvider;
+import cz.jirix.magiccardmanager.provider.RepositoryProvider;
+import cz.jirix.magiccardmanager.provider.WebserviceProvider;
 
 public class CustomApplication extends Application {
 
@@ -12,8 +12,8 @@ public class CustomApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        RepositoryProvider.get().initRepositories();
         WebserviceProvider.get().initWebservices();
+        RepositoryProvider.get().initRepositories(WebserviceProvider.get());
 
     }
 }

@@ -27,8 +27,8 @@
         android:layout_height="wrap_content"
         android:text="@string/set"/>
 
-    <Spinner
-        android:id="@+id/spinner_set"
+    <AutoCompleteTextView
+        android:id="@+id/autocomplete_set"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

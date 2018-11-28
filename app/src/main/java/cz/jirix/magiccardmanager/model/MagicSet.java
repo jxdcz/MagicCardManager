@@ -1,13 +1,22 @@
 package cz.jirix.magiccardmanager.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class MagicSet {
 
+    @SerializedName("code")
     private String mCode;
+    @SerializedName("name")
     private String mName;
+    @SerializedName("type")
     private String mType;
+    @SerializedName("border")
     private String mBorder;
+    @SerializedName("mkm_id")
     private int mMkmId;
+    @SerializedName("releaseDate")
     private String mReleaseDate;
+    @SerializedName("block")
     private String mBlock;
 
     public MagicSet(String code, String name, String type, String border, int mkmId, String releaseDate, String block) {
@@ -74,5 +83,10 @@ public class MagicSet {
 
     public void setBlock(String block) {
         mBlock = block;
+    }
+
+    @Override
+    public String toString() {
+        return mCode +":" + mName + ":" + mType;
     }
 }

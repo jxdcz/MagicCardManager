@@ -1,11 +1,11 @@
-package cz.jirix.magiccardmanager.injection;
+package cz.jirix.magiccardmanager.provider;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import cz.jirix.magiccardmanager.repository.AddInfoRepository;
+import cz.jirix.magiccardmanager.repository.CurrentSelectionRepository;
 import cz.jirix.magiccardmanager.repository.IRepository;
-import cz.jirix.magiccardmanager.webservices.MagicCardApi;
 
 public class RepositoryProvider {
 
@@ -27,7 +27,8 @@ public class RepositoryProvider {
 
 
     public void initRepositories(WebserviceProvider webserviceProvider){
-        mRepositories.put(Repo.ADD_INFO, new AddInfoRepository((MagicCardApi) webserviceProvider.getService(WebserviceProvider.Services.MAGIC)));
+        mRepositories.put(Repo.ADD_INFO, new AddInfoRepository(webserviceProvider.getMagicService()));
+        mRepositories.put(Repo.PREFERENCES, new CurrentSelectionRepository(webserviceProvider.getMagicService()));
     }
 
     public IRepository getRepository(String type) {
@@ -37,5 +38,6 @@ public class RepositoryProvider {
 
     public static class Repo{
         public static final String ADD_INFO = "additionalInfoRepository";
+        public static final String PREFERENCES = "currentPreferences";
     }
 }

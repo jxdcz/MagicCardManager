@@ -23,4 +23,6 @@
     <string name="color">Color</string>
     <string name="card_toughness">Toughness</string>
     <string name="search">Search</string>
+    <string name="title_card_list">Cards</string>
+    <string name="title_card_detail">Card Detail</string>
 </resources>
