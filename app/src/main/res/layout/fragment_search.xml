@@ -105,7 +105,7 @@
 
     </LinearLayout>
 
-    <Button
+    <cz.jirix.magiccardmanager.views.LoadingButton
         android:id="@+id/button_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

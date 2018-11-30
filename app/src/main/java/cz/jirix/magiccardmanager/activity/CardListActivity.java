@@ -29,7 +29,6 @@ import cz.jirix.magiccardmanager.viewModel.CardListViewModel;
 public class CardListActivity extends AppCompatActivity {
 
     private boolean mTwoPane;
-
     private CardListRecyclerAdapter mCardListAdapter;
 
     @Override

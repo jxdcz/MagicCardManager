@@ -25,4 +25,5 @@
     <string name="search">Search</string>
     <string name="title_card_list">Cards</string>
     <string name="title_card_detail">Card Detail</string>
+    <string name="error_network_load_failed">Data loading failed, using local data</string>
 </resources>

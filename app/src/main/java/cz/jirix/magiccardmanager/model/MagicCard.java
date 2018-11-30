@@ -1,44 +1,68 @@
 package cz.jirix.magiccardmanager.model;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverters;
+import android.support.annotation.NonNull;
+
+import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class MagicCard {
+import cz.jirix.magiccardmanager.persistence.Converters;
 
-    private static final String JSON_ID = "id";
-    private static final String JSON_NAME = "name";
-    private static final String JSON_MANA_COST = "manaCost";
-    private static final String JSON_C_MANA_COST = "cmc";
-    private static final String JSON_COLORS = "colors";
-    private static final String JSON_TYPE = "type";
-    private static final String JSON_RARITY = "rarity";
-    private static final String JSON_SET = "set";
-    private static final String JSON_TEXT = "text";
-    private static final String JSON_ARTIST = "artist";
-    private static final String JSON_POWER = "power";
+@Entity
+public class MagicCard {
 
     // would be much better with Kotlin data classes
     // yes, could use GSON, but I for JSON, I prefer the old school
 
+    @PrimaryKey
+    @NonNull
+    @SerializedName("id")
     private String mId;
+
+    @SerializedName("name")
     private String mName;
+
+    @SerializedName("manaCost")
     private String mManaCost;
+
+    @SerializedName("cmc")
     private int mConvertedManaCost;
+
+    @SerializedName("colors")
     private List<String> mColors;
+
+    @SerializedName("type")
     private String mType;
+
+    @SerializedName("rarity")
     private String mRarity;
+
+    @SerializedName("set")
     private String mSetId;
+
+    @SerializedName("text")
     private String mText;
+
+    @SerializedName("artist")
     private String mArtist;
-    private int mPower;
-    private int mToughness;
+
+    @SerializedName("power")
+    private String mPower;
+
+    @SerializedName("toughness")
+    private String mToughness;
+
+    @SerializedName("multiverseid")
     private int mMultiverseId;
+
+    @SerializedName("imageUrl")
     private String mImageUrl;
 
 
-    public MagicCard(String id, String name, String manaCost, int convertedManaCost, List<String> colors, String type, String rarity, String setId, String text, String artist, int power, int toughness, int multiverseId, String imageUrl) {
+    public MagicCard(String id, String name, String manaCost, int convertedManaCost, List<String> colors, String type, String rarity, String setId, String text, String artist, String power, String toughness, int multiverseId, String imageUrl) {
         mId = id;
         mName = name;
         mManaCost = manaCost;
@@ -135,19 +159,19 @@ public class MagicCard {
         mArtist = artist;
     }
 
-    public int getPower() {
+    public String getPower() {
         return mPower;
     }
 
-    public void setPower(int power) {
+    public void setPower(String power) {
         mPower = power;
     }
 
-    public int getToughness() {
+    public String getToughness() {
         return mToughness;
     }
 
-    public void setToughness(int toughness) {
+    public void setToughness(String toughness) {
         mToughness = toughness;
     }
 

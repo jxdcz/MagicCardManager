@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cz.jirix.magiccardmanager.model.CardSearchCriteria;
@@ -20,6 +21,7 @@ public class CurrentSelectionRepository implements IRepository {
 
     private MagicCardApi mCardApi;
 
+    private MutableLiveData<String> mDataLoadingState = new MutableLiveData<>();
     private MutableLiveData<MagicCard> mSelectedCard = new MutableLiveData<>();
     private MutableLiveData<List<MagicCard>> mCurrentCards = new MutableLiveData<>();
     private CardSearchCriteria mCurrentSearchCriteria;
@@ -27,6 +29,7 @@ public class CurrentSelectionRepository implements IRepository {
 
     public CurrentSelectionRepository(MagicCardApi cardApi) {
         mCardApi = cardApi;
+        mDataLoadingState.setValue(LoadingState.IDLE);
     }
 
     public void selectCard(String cardId){
@@ -48,8 +51,12 @@ public class CurrentSelectionRepository implements IRepository {
         }
     }
 
-    public void loadCards(CardSearchCriteria criteria){
+    public LiveData<String> getLoadingState(){
+        return mDataLoadingState;
+    }
 
+    public void loadCards(CardSearchCriteria criteria){
+        mDataLoadingState.setValue(LoadingState.LOADING);
         Call<MagicCardsResponse> call = mCardApi.getCardsCall(
                 criteria.getCardName(),
                 criteria.getColor(),
@@ -59,15 +66,24 @@ public class CurrentSelectionRepository implements IRepository {
         call.enqueue(new Callback<MagicCardsResponse>() {
             @Override
             public void onResponse(@NonNull Call<MagicCardsResponse> call, @NonNull Response<MagicCardsResponse> response) {
+                //TODO debug
+                if(Math.random() >= 0.3d){
+                    onFailure(call, new Throwable());
+                    return;
+                }
+
                 if (response.body() != null) {
                     mCurrentCards.postValue(response.body().getCards());
                 }
+                mDataLoadingState.setValue(LoadingState.SUCCESS);
             }
 
             @Override
             public void onFailure(@NonNull Call<MagicCardsResponse> call, @NonNull Throwable t) {
                 Log.w(TAG, "Fetching cards from the api failed, fetching local results");
+                mDataLoadingState.setValue(LoadingState.NETWORK_ERROR);
                 //TODO load room results
+                mCurrentCards.setValue(new ArrayList<>());
             }
         });
     }
@@ -86,5 +102,12 @@ public class CurrentSelectionRepository implements IRepository {
 
     public LiveData<MagicCard> getSelectedCard() {
         return mSelectedCard;
+    }
+
+    public static class LoadingState{
+        public static final String IDLE = "idle";
+        public static final String LOADING = "loading";
+        public static final String NETWORK_ERROR = "networkError";
+        public static final String SUCCESS = "success";
     }
 }

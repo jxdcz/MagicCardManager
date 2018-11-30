@@ -18,6 +18,7 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +27,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cz.jirix.magiccardmanager.R;
+import cz.jirix.magiccardmanager.model.CardSearchCriteria;
 import cz.jirix.magiccardmanager.model.MagicColor;
 import cz.jirix.magiccardmanager.model.MagicSet;
+import cz.jirix.magiccardmanager.repository.CurrentSelectionRepository;
 import cz.jirix.magiccardmanager.viewModel.SearchViewModel;
+import cz.jirix.magiccardmanager.views.LoadingButton;
 
 
 public class SearchFragment extends Fragment {
@@ -43,6 +47,8 @@ public class SearchFragment extends Fragment {
     @BindView(R.id.edit_power_max) EditText mEditPowerMax;
     @BindView(R.id.edit_toughness_min) EditText mEditToughnessMin;
     @BindView(R.id.edit_toughness_max) EditText mEditToughnessMax;
+
+    @BindView(R.id.button_search) LoadingButton mButtonSearch;
 
     private MagicColorsSpinnerAdapter mAdapterColors;
     private MagicSetsSpinnerAdapter mAdapterSets;
@@ -60,7 +66,12 @@ public class SearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        repopulateLastSearch();
     }
 
     @Override
@@ -73,8 +84,16 @@ public class SearchFragment extends Fragment {
         initCardNameEdit();
         initToughnessEdit();
         initPowerEdit();
+        observeLoadingState();
 
         return rootView;
+    }
+
+    private void repopulateLastSearch() {
+        CardSearchCriteria lastSearch = getViewModel().getCurrentSelection();
+        mEditCardName.setText(lastSearch.getCardName());
+        mAutocompleteSet.setText(lastSearch.getSetName());
+        mSpinnerColor.setSelection(mAdapterColors.getItemPosition(lastSearch.getColor()));
     }
 
 
@@ -179,13 +198,33 @@ public class SearchFragment extends Fragment {
     }
 
     private void observeSets() {
-        getViewModel().getCardSets().observe(this, magicSets -> {
-            mAdapterSets.setData(magicSets);
-        });
+        getViewModel().getCardSets().observe(this, magicSets -> mAdapterSets.setData(magicSets));
+    }
+
+    private void observeLoadingState(){
+        getViewModel().getLoadingState().observe(this, this::onLoadingStateChanged);
+    }
+
+    private void onLoadingStateChanged(String state){
+        if(state.equals(getViewModel().getLastLoadingState())){
+            return;
+        }
+        getViewModel().acknowledgeState(state);
+
+        switch (state){
+            case CurrentSelectionRepository.LoadingState.NETWORK_ERROR:
+                Toast.makeText(getContext(), R.string.error_network_load_failed, Toast.LENGTH_SHORT).show();
+                mButtonSearch.showProgress(false);
+                break;
+            case CurrentSelectionRepository.LoadingState.SUCCESS:
+                mButtonSearch.showProgress(false);
+                break;
+        }
     }
 
     @OnClick(R.id.button_search)
     public void onSearchClicked() {
+        mButtonSearch.showProgress(true);
         getViewModel().onSelectionSubmitted();
     }
 
@@ -234,6 +273,16 @@ public class SearchFragment extends Fragment {
             ((TextView) convertView).setText(color.getName());
             return convertView;
         }
+
+        public int getItemPosition(String color) {
+            for(int i=0;i<mData.size();i++){
+                MagicColor item = mData.get(i);
+                if(item.getName().equals(color)){
+                    return i;
+                }
+            }
+            return -1;
+        }
     }
 
     private static class MagicSetsSpinnerAdapter extends ArrayAdapter<MagicSet> {
@@ -243,6 +292,7 @@ public class SearchFragment extends Fragment {
         public MagicSetsSpinnerAdapter(Context context) {
             super(context, android.R.layout.simple_dropdown_item_1line);
             mInflater = LayoutInflater.from(context);
+
         }
 
         public void setData(List<MagicSet> sets) {

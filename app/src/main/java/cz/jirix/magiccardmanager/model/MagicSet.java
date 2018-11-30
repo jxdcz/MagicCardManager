@@ -1,21 +1,34 @@
 package cz.jirix.magiccardmanager.model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
+@Entity
 public class MagicSet {
 
+    @PrimaryKey
+    @NonNull
     @SerializedName("code")
     private String mCode;
+
     @SerializedName("name")
     private String mName;
+
     @SerializedName("type")
     private String mType;
+
     @SerializedName("border")
     private String mBorder;
+
     @SerializedName("mkm_id")
     private int mMkmId;
+
     @SerializedName("releaseDate")
     private String mReleaseDate;
+
     @SerializedName("block")
     private String mBlock;
 
@@ -87,6 +100,6 @@ public class MagicSet {
 
     @Override
     public String toString() {
-        return mCode +":" + mName + ":" + mType;
+        return mName;
     }
 }
