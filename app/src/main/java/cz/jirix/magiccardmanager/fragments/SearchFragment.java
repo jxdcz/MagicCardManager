@@ -2,7 +2,6 @@ package cz.jirix.magiccardmanager.fragments;
 
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -12,24 +11,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cz.jirix.magiccardmanager.R;
+import cz.jirix.magiccardmanager.fragments.adapters.MagicColorsSpinnerAdapter;
+import cz.jirix.magiccardmanager.fragments.adapters.MagicSetsSpinnerAdapter;
 import cz.jirix.magiccardmanager.model.CardSearchCriteria;
 import cz.jirix.magiccardmanager.model.MagicColor;
-import cz.jirix.magiccardmanager.model.MagicSet;
 import cz.jirix.magiccardmanager.repository.CurrentSelectionRepository;
 import cz.jirix.magiccardmanager.viewModel.SearchViewModel;
 import cz.jirix.magiccardmanager.views.LoadingButton;
@@ -230,88 +224,5 @@ public class SearchFragment extends Fragment {
 
     private SearchViewModel getViewModel() {
         return ViewModelProviders.of(this).get(SearchViewModel.class);
-    }
-
-
-    private static class MagicColorsSpinnerAdapter extends BaseAdapter {
-
-        private LayoutInflater mInflater;
-        private List<MagicColor> mData;
-
-        public MagicColorsSpinnerAdapter(Context context) {
-            mInflater = LayoutInflater.from(context);
-            mData = new ArrayList<>();
-        }
-
-        public void setData(List<MagicColor> colors) {
-            mData = new ArrayList<>(colors);
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public int getCount() {
-            return mData.size();
-        }
-
-        @Override
-        public Object getItem(int i) {
-            return mData.get(i);
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return i;
-        }
-
-        @Override
-        public View getView(int i, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = mInflater.inflate(android.R.layout.simple_dropdown_item_1line, parent, false);
-            }
-
-            MagicColor color = (MagicColor) getItem(i);
-            ((TextView) convertView).setText(color.getName());
-            return convertView;
-        }
-
-        public int getItemPosition(String color) {
-            for(int i=0;i<mData.size();i++){
-                MagicColor item = mData.get(i);
-                if(item.getName().equals(color)){
-                    return i;
-                }
-            }
-            return -1;
-        }
-    }
-
-    private static class MagicSetsSpinnerAdapter extends ArrayAdapter<MagicSet> {
-
-        private LayoutInflater mInflater;
-
-        public MagicSetsSpinnerAdapter(Context context) {
-            super(context, android.R.layout.simple_dropdown_item_1line);
-            mInflater = LayoutInflater.from(context);
-
-        }
-
-        public void setData(List<MagicSet> sets) {
-            clear();
-            addAll(sets);
-            notifyDataSetChanged();
-        }
-
-        @NonNull
-        @Override
-        public View getView(int i, View convertView, @NonNull ViewGroup parent) {
-            if (convertView == null) {
-                convertView = mInflater.inflate(android.R.layout.simple_dropdown_item_1line, parent, false);
-            }
-
-            MagicSet set = getItem(i);
-            ((TextView) convertView).setText(set.getName());
-            return convertView;
-        }
-
     }
 }
