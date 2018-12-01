@@ -12,6 +12,7 @@ import java.util.List;
 import cz.jirix.magiccardmanager.model.CardSearchCriteria;
 import cz.jirix.magiccardmanager.model.MagicColor;
 import cz.jirix.magiccardmanager.model.MagicSet;
+import cz.jirix.magiccardmanager.model.MagicType;
 import cz.jirix.magiccardmanager.navigation.AppNavigator;
 import cz.jirix.magiccardmanager.provider.RepositoryProvider;
 import cz.jirix.magiccardmanager.repository.AddInfoRepository;
@@ -105,6 +106,14 @@ public class SearchViewModel extends AndroidViewModel {
                 AppNavigator.goToCardListDetailActivity(getApplication().getApplicationContext());
                 break;
         }
+    }
+
+    public void onCardTypeEntered(String type) {
+        mCurrentSelection.setType(type);
+    }
+
+    public LiveData<List<MagicType>> getCardTypes() {
+        return mAdditionalInfoRepository.getLiveTypes();
     }
 
     private class LoadingStateObserver implements Observer<String> {

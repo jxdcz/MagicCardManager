@@ -5,26 +5,25 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
-import java.util.List;
-
 import cz.jirix.magiccardmanager.model.MagicCard;
 import cz.jirix.magiccardmanager.provider.RepositoryProvider;
 import cz.jirix.magiccardmanager.repository.CurrentSelectionRepository;
 
-public class CardListViewModel extends AndroidViewModel{
+public class CardDetailViewModel extends AndroidViewModel {
 
     private CurrentSelectionRepository mSelectionRepository;
 
-    public CardListViewModel(@NonNull Application application) {
+    public CardDetailViewModel(@NonNull Application application) {
         super(application);
         mSelectionRepository = (CurrentSelectionRepository) RepositoryProvider.get().getRepository(RepositoryProvider.Repo.PREFERENCES);
     }
 
-    public LiveData<List<MagicCard>> getCurrentCards(){
-        return mSelectionRepository.getCurrentCards();
+    public LiveData<MagicCard> getCurrentCard(){
+        return mSelectionRepository.getSelectedCard();
     }
 
-    public void onCardSelected(MagicCard card) {
-        mSelectionRepository.selectCard(card.getId());
-    }
+
+
+
+
 }

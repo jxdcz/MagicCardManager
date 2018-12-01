@@ -60,14 +60,15 @@ public class CurrentSelectionRepository implements IRepository {
         Call<MagicCardsResponse> call = mCardApi.getCardsCall(
                 criteria.getCardName(),
                 criteria.getColor(),
-                criteria.getSetName()
+                criteria.getSetName(),
+                criteria.getType()
         );
 
         call.enqueue(new Callback<MagicCardsResponse>() {
             @Override
             public void onResponse(@NonNull Call<MagicCardsResponse> call, @NonNull Response<MagicCardsResponse> response) {
                 //TODO debug
-                if(Math.random() >= 0.3d){
+                if(criteria.getPowerMin() > 50){
                     onFailure(call, new Throwable());
                     return;
                 }

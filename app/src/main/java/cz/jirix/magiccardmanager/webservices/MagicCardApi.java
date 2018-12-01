@@ -30,6 +30,6 @@ public interface MagicCardApi {
     Call<MagicCardsResponse> getCardsCall(@QueryMap Map<String, String> parameters);
 
     @GET("cards")
-    Call<MagicCardsResponse> getCardsCall(@Query("name") String name, @Query("colors") String colors, @Query("setName") String setName);
+    Call<MagicCardsResponse> getCardsCall(@Query("name") String name, @Query("colors") String colors, @Query("setName") String setName, @Query("types") String type);
 
 }

@@ -24,6 +24,7 @@ import java.util.List;
 import cz.jirix.magiccardmanager.R;
 import cz.jirix.magiccardmanager.fragments.CardDetailFragment;
 import cz.jirix.magiccardmanager.model.MagicCard;
+import cz.jirix.magiccardmanager.navigation.AppNavigator;
 import cz.jirix.magiccardmanager.viewModel.CardListViewModel;
 
 public class CardListActivity extends AppCompatActivity {
@@ -70,11 +71,19 @@ public class CardListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        mCardListAdapter = new CardListRecyclerAdapter(this, mTwoPane);
+        mCardListAdapter = new CardListRecyclerAdapter(view -> onCardClicked((MagicCard) view.getTag()));
         getViewModel().getCurrentCards().observe(this, magicCards -> mCardListAdapter.setData(magicCards));
         recyclerView.setAdapter(mCardListAdapter);
     }
 
+
+    private void onCardClicked(MagicCard card){
+        getViewModel().onCardSelected(card);
+
+        if(!mTwoPane){
+            AppNavigator.goToCardDetailActivity(this);
+        }
+    }
 
     private CardListViewModel getViewModel(){
         return ViewModelProviders.of(this).get(CardListViewModel.class);
@@ -82,36 +91,12 @@ public class CardListActivity extends AppCompatActivity {
 
     public static class CardListRecyclerAdapter extends RecyclerView.Adapter<CardListRecyclerAdapter.ViewHolder> {
 
-        private final CardListActivity mParentActivity;
-
         private List<MagicCard> mData;
-        private boolean mTwoPane;
-        private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MagicCard item = (MagicCard) view.getTag();
-                if (mTwoPane) {
-                    /*
-                    possibly useless
-                    Bundle arguments = new Bundle();
-                    CardDetailFragment fragment = new CardDetailFragment();
-                    fragment.setArguments(arguments);
-                    mParentActivity.getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.card_detail_container, fragment)
-                            .commit();
-                            */
-                } else {
-                    Context context = view.getContext();
-                    Intent intent = new Intent(context, CardDetailActivity.class);
-                    context.startActivity(intent);
-                }
-            }
-        };
+        private View.OnClickListener mOnClickListener;
 
-        CardListRecyclerAdapter(CardListActivity parent, boolean twoPane) {
+        CardListRecyclerAdapter(View.OnClickListener listener) {
             mData = new ArrayList<>();
-            mParentActivity = parent;
-            mTwoPane = twoPane;
+            mOnClickListener = listener;
         }
 
         @NonNull

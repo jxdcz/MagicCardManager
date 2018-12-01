@@ -27,7 +27,11 @@ public class RepositoryProvider {
 
 
     public void initRepositories(WebserviceProvider webserviceProvider, DbProvider dbProvider){
-        mRepositories.put(Repo.ADD_INFO, new AddInfoRepository(webserviceProvider.getMagicService(), dbProvider.getDatabase().magicSetDao()));
+        mRepositories.put(Repo.ADD_INFO, new AddInfoRepository(
+                webserviceProvider.getMagicService(),
+                dbProvider.getDatabase().magicSetDao(),
+                dbProvider.getDatabase().magicTypeDao()
+        ));
         mRepositories.put(Repo.PREFERENCES, new CurrentSelectionRepository(webserviceProvider.getMagicService()));
     }
 

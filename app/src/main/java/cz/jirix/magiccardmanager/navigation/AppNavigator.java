@@ -3,6 +3,7 @@ package cz.jirix.magiccardmanager.navigation;
 import android.content.Context;
 import android.content.Intent;
 
+import cz.jirix.magiccardmanager.activity.CardDetailActivity;
 import cz.jirix.magiccardmanager.activity.CardListActivity;
 
 public class AppNavigator {
@@ -12,5 +13,10 @@ public class AppNavigator {
         context.startActivity(intent);
     }
 
+    public static void goToCardDetailActivity(Context context){
+        Intent intent = new Intent(context, CardDetailActivity.class);
+        context.startActivity(intent);
+
+    }
 
 }

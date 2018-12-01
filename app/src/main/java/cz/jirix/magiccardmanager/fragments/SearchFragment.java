@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -20,10 +21,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cz.jirix.magiccardmanager.R;
-import cz.jirix.magiccardmanager.fragments.adapters.MagicColorsSpinnerAdapter;
+import cz.jirix.magiccardmanager.fragments.adapters.SimpleArrayWithDefValueAdapter;
 import cz.jirix.magiccardmanager.fragments.adapters.MagicSetsSpinnerAdapter;
 import cz.jirix.magiccardmanager.model.CardSearchCriteria;
 import cz.jirix.magiccardmanager.model.MagicColor;
+import cz.jirix.magiccardmanager.model.MagicType;
 import cz.jirix.magiccardmanager.repository.CurrentSelectionRepository;
 import cz.jirix.magiccardmanager.viewModel.SearchViewModel;
 import cz.jirix.magiccardmanager.views.LoadingButton;
@@ -35,6 +37,7 @@ public class SearchFragment extends Fragment {
 
     @BindView(R.id.autocomplete_set) AutoCompleteTextView mAutocompleteSet;
     @BindView(R.id.spinner_color) Spinner mSpinnerColor;
+    @BindView(R.id.spinner_type) Spinner mSpinnerType;
 
     @BindView(R.id.edit_card_name) EditText mEditCardName;
     @BindView(R.id.edit_power_min) EditText mEditPowerMin;
@@ -44,8 +47,9 @@ public class SearchFragment extends Fragment {
 
     @BindView(R.id.button_search) LoadingButton mButtonSearch;
 
-    private MagicColorsSpinnerAdapter mAdapterColors;
+    private SimpleArrayWithDefValueAdapter<MagicColor> mAdapterColors;
     private MagicSetsSpinnerAdapter mAdapterSets;
+    private SimpleArrayWithDefValueAdapter<MagicType> mAdapterTypes;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -75,6 +79,7 @@ public class SearchFragment extends Fragment {
 
         initSpinnerColors();
         initSpinnerSets();
+        initSpinnerTypes();
         initCardNameEdit();
         initToughnessEdit();
         initPowerEdit();
@@ -86,18 +91,24 @@ public class SearchFragment extends Fragment {
     private void repopulateLastSearch() {
         CardSearchCriteria lastSearch = getViewModel().getCurrentSelection();
         mEditCardName.setText(lastSearch.getCardName());
+        // a workaround to not show suggestions when repopulating
+        int lastThreshold = mAutocompleteSet.getThreshold();
+        mAutocompleteSet.setThreshold(999);
         mAutocompleteSet.setText(lastSearch.getSetName());
-        mSpinnerColor.setSelection(mAdapterColors.getItemPosition(lastSearch.getColor()));
+        mAutocompleteSet.setThreshold(lastThreshold);
+        //mSpinnerColor.setSelection(mAdapterColors.getItemPosition(lastSearch.getColor()));
     }
 
 
     private void initPowerEdit() {
         TextWatcher watcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             @Override
             public void afterTextChanged(Editable editable) {
@@ -114,10 +125,12 @@ public class SearchFragment extends Fragment {
     private void initToughnessEdit() {
         TextWatcher watcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             @Override
             public void afterTextChanged(Editable editable) {
@@ -134,10 +147,12 @@ public class SearchFragment extends Fragment {
     private void initCardNameEdit() {
         mEditCardName.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
             @Override
             public void afterTextChanged(Editable editable) {
@@ -148,13 +163,13 @@ public class SearchFragment extends Fragment {
 
 
     private void initSpinnerColors() {
-        mAdapterColors = new MagicColorsSpinnerAdapter(getContext());
+        mAdapterColors = new SimpleArrayWithDefValueAdapter<>(getContext());
         mSpinnerColor.setAdapter(mAdapterColors);
         mSpinnerColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 MagicColor color = (MagicColor) mAdapterColors.getItem(i);
-                getViewModel().onCardColorEntered(color.getName());
+                getViewModel().onCardColorEntered(color == null ? null : color.getName());
             }
 
             @Override
@@ -167,6 +182,27 @@ public class SearchFragment extends Fragment {
 
     private void observeColors() {
         getViewModel().getCardColors().observe(this, magicColors -> mAdapterColors.setData(magicColors));
+    }
+
+    private void initSpinnerTypes() {
+        mAdapterTypes = new SimpleArrayWithDefValueAdapter<>(getContext());
+        mSpinnerType.setAdapter(mAdapterTypes);
+        mSpinnerType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                MagicType magicType = mAdapterTypes.getItem(i);
+                getViewModel().onCardTypeEntered(magicType == null ? null : magicType.getType());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+        observeTypes();
+    }
+
+    private void observeTypes() {
+        getViewModel().getCardTypes().observe(this, magicTypes -> mAdapterTypes.setData(magicTypes));
     }
 
     private void initSpinnerSets() {
@@ -195,17 +231,17 @@ public class SearchFragment extends Fragment {
         getViewModel().getCardSets().observe(this, magicSets -> mAdapterSets.setData(magicSets));
     }
 
-    private void observeLoadingState(){
+    private void observeLoadingState() {
         getViewModel().getLoadingState().observe(this, this::onLoadingStateChanged);
     }
 
-    private void onLoadingStateChanged(String state){
-        if(state.equals(getViewModel().getLastLoadingState())){
+    private void onLoadingStateChanged(String state) {
+        if (state.equals(getViewModel().getLastLoadingState())) {
             return;
         }
         getViewModel().acknowledgeState(state);
 
-        switch (state){
+        switch (state) {
             case CurrentSelectionRepository.LoadingState.NETWORK_ERROR:
                 Toast.makeText(getContext(), R.string.error_network_load_failed, Toast.LENGTH_SHORT).show();
                 mButtonSearch.showProgress(false);

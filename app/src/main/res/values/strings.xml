@@ -26,4 +26,8 @@
     <string name="title_card_list">Cards</string>
     <string name="title_card_detail">Card Detail</string>
     <string name="error_network_load_failed">Data loading failed, using local data</string>
+    <string name="card_detail_as_an_image">Card detail as an image</string>
+    <string name="set_name">Set name</string>
+    <string name="can_t_find_an_image_for_this_card">Can\'t find an image for this card</string>
+    <string name="card_type">Card type</string>
 </resources>

@@ -12,29 +12,30 @@ import java.util.List;
 
 import cz.jirix.magiccardmanager.model.MagicColor;
 
-public class MagicColorsSpinnerAdapter extends BaseAdapter {
+public class SimpleArrayWithDefValueAdapter<T> extends BaseAdapter {
+    public static final String DEF_VALUE = "---------";
 
     private LayoutInflater mInflater;
-    private List<MagicColor> mData;
+    private List<T> mData;
 
-    public MagicColorsSpinnerAdapter(Context context) {
+    public SimpleArrayWithDefValueAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
         mData = new ArrayList<>();
     }
 
-    public void setData(List<MagicColor> colors) {
-        mData = new ArrayList<>(colors);
+    public void setData(List<T> items) {
+        mData = new ArrayList<>(items);
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return mData.size();
+        return mData.size()+1;
     }
 
     @Override
-    public Object getItem(int i) {
-        return mData.get(i);
+    public T getItem(int i) {
+        return i == 0 ? null : mData.get(i-1);
     }
 
     @Override
@@ -48,15 +49,15 @@ public class MagicColorsSpinnerAdapter extends BaseAdapter {
             convertView = mInflater.inflate(android.R.layout.simple_dropdown_item_1line, parent, false);
         }
 
-        MagicColor color = (MagicColor) getItem(i);
-        ((TextView) convertView).setText(color.getName());
+        Object item = getItem(i);
+        ((TextView) convertView).setText(item == null ? DEF_VALUE : item.toString());
         return convertView;
     }
 
-    public int getItemPosition(String color) {
+    public int getItemPosition(String value) {
         for(int i=0;i<mData.size();i++){
-            MagicColor item = mData.get(i);
-            if(item.getName().equals(color)){
+            Object item = mData.get(i);
+            if(item.toString().equals(value)){
                 return i;
             }
         }

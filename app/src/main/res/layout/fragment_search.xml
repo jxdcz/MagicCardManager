@@ -29,6 +29,8 @@
 
     <AutoCompleteTextView
         android:id="@+id/autocomplete_set"
+        android:hint="@string/set_name"
+        android:maxLines="1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
@@ -40,6 +42,16 @@
 
     <Spinner
         android:id="@+id/spinner_color"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/card_type"/>
+
+    <Spinner
+        android:id="@+id/spinner_type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

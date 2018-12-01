@@ -9,16 +9,7 @@ public class CardSearchCriteria {
     private int mPowerMax;
     private int mToughnessMin;
     private int mToughnessMax;
-
-    public CardSearchCriteria(String cardName, String setName, String color, int powerMin, int powerMax, int toughnessMin, int toughnessMax) {
-        mCardName = cardName;
-        mSetName = setName;
-        mColor = color;
-        mPowerMin = powerMin;
-        mPowerMax = powerMax;
-        mToughnessMin = toughnessMin;
-        mToughnessMax = toughnessMax;
-    }
+    private String mType;
 
     public CardSearchCriteria() {
         // defaults to no criteria
@@ -78,5 +69,13 @@ public class CardSearchCriteria {
 
     public void setToughnessMax(int toughnessMax) {
         mToughnessMax = toughnessMax;
+    }
+
+    public void setType(String type) {
+        mType = type;
+    }
+
+    public String getType() {
+        return mType;
     }
 }
