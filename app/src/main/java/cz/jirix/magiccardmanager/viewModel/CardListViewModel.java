@@ -27,4 +27,16 @@ public class CardListViewModel extends AndroidViewModel{
     public void onCardSelected(MagicCard card) {
         mSelectionRepository.selectCard(card.getId());
     }
+
+    public LiveData<String> getNetworkState() {
+        return mSelectionRepository.getLoadingState();
+    }
+
+    public LiveData<Integer> getCurrentCardsPageCount() {
+        return mSelectionRepository.getCurrentCardsPageCount();
+    }
+
+    public LiveData<Integer> getCurrentCardsPage() {
+        return mSelectionRepository.getCurrentCardsPage();
+    }
 }

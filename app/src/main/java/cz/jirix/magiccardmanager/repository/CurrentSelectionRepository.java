@@ -23,6 +23,8 @@ public class CurrentSelectionRepository implements IRepository {
 
     private MutableLiveData<String> mDataLoadingState = new MutableLiveData<>();
     private MutableLiveData<MagicCard> mSelectedCard = new MutableLiveData<>();
+    private MutableLiveData<Integer> mCurrentPage = new MutableLiveData<>();
+    private MutableLiveData<Integer> mPagesOfResults = new MutableLiveData<>();
     private MutableLiveData<List<MagicCard>> mCurrentCards = new MutableLiveData<>();
     private CardSearchCriteria mCurrentSearchCriteria;
 
@@ -30,6 +32,7 @@ public class CurrentSelectionRepository implements IRepository {
     public CurrentSelectionRepository(MagicCardApi cardApi) {
         mCardApi = cardApi;
         mDataLoadingState.setValue(LoadingState.IDLE);
+        resetPages();
     }
 
     public void selectCard(String cardId){
@@ -73,6 +76,12 @@ public class CurrentSelectionRepository implements IRepository {
                     return;
                 }
 
+                int returnedCount = Integer.parseInt(response.headers().get(MagicCardApi.HEADER_RESP_COUNT));
+                int totalCount = Integer.parseInt(response.headers().get(MagicCardApi.HEADER_RESP_TOTAL_COUNT));
+
+                int pages = totalCount / returnedCount;
+                mPagesOfResults.postValue(pages);
+
                 if (response.body() != null) {
                     mCurrentCards.postValue(response.body().getCards());
                 }
@@ -83,10 +92,16 @@ public class CurrentSelectionRepository implements IRepository {
             public void onFailure(@NonNull Call<MagicCardsResponse> call, @NonNull Throwable t) {
                 Log.w(TAG, "Fetching cards from the api failed, fetching local results");
                 mDataLoadingState.setValue(LoadingState.NETWORK_ERROR);
+                resetPages();
                 //TODO load room results
                 mCurrentCards.setValue(new ArrayList<>());
             }
         });
+    }
+
+    private void resetPages(){
+        mPagesOfResults.postValue(1);
+        mCurrentPage.postValue(1);
     }
 
     public CardSearchCriteria getCurrentSearchCriteria() {
@@ -104,6 +119,15 @@ public class CurrentSelectionRepository implements IRepository {
     public LiveData<MagicCard> getSelectedCard() {
         return mSelectedCard;
     }
+
+    public LiveData<Integer> getCurrentCardsPageCount() {
+        return mPagesOfResults;
+    }
+
+    public LiveData<Integer> getCurrentCardsPage() {
+        return mCurrentPage;
+    }
+
 
     public static class LoadingState{
         public static final String IDLE = "idle";

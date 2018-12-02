@@ -100,6 +100,13 @@ public class SearchFragment extends Fragment {
     }
 
 
+    private int parseInt(String string){
+        if(string == null || string.isEmpty()){
+            return 0;
+        }
+        return Integer.parseInt(string);
+    }
+
     private void initPowerEdit() {
         TextWatcher watcher = new TextWatcher() {
             @Override
@@ -113,8 +120,8 @@ public class SearchFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 getViewModel().onPowerEntered(
-                        Integer.parseInt(mEditPowerMin.getText().toString()),
-                        Integer.parseInt(mEditPowerMax.getText().toString())
+                        parseInt(mEditPowerMin.getText().toString()),
+                        parseInt(mEditPowerMax.getText().toString())
                 );
             }
         };
@@ -135,8 +142,8 @@ public class SearchFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 getViewModel().onToughnessEntered(
-                        Integer.parseInt(mEditToughnessMin.getText().toString()),
-                        Integer.parseInt(mEditToughnessMax.getText().toString())
+                        parseInt(mEditToughnessMin.getText().toString()),
+                        parseInt(mEditToughnessMax.getText().toString())
                 );
             }
         };
@@ -168,7 +175,7 @@ public class SearchFragment extends Fragment {
         mSpinnerColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                MagicColor color = (MagicColor) mAdapterColors.getItem(i);
+                MagicColor color = mAdapterColors.getItem(i);
                 getViewModel().onCardColorEntered(color == null ? null : color.getName());
             }
 

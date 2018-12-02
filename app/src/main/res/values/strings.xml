@@ -30,4 +30,9 @@
     <string name="set_name">Set name</string>
     <string name="can_t_find_an_image_for_this_card">Can\'t find an image for this card</string>
     <string name="card_type">Card type</string>
+    <string name="paging_label">Page %d/%d</string>
+    <string name="previous_page">Previous page</string>
+    <string name="next_page">Next page</string>
+    <string name="warning_network_error_incomplete_results">Warning, network error detected, results might be incomplete</string>
+    <string name="error_no_items_found_for_criteria">No items found for given criteria</string>
 </resources>

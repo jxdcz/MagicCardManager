@@ -1,12 +1,8 @@
 package cz.jirix.magiccardmanager.activity;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -21,13 +17,20 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.jirix.magiccardmanager.R;
-import cz.jirix.magiccardmanager.fragments.CardDetailFragment;
 import cz.jirix.magiccardmanager.model.MagicCard;
 import cz.jirix.magiccardmanager.navigation.AppNavigator;
+import cz.jirix.magiccardmanager.repository.CurrentSelectionRepository;
 import cz.jirix.magiccardmanager.viewModel.CardListViewModel;
 
 public class CardListActivity extends AppCompatActivity {
+
+    @BindView(R.id.text_warning_network_error) TextView mTextNetworkWarning;
+    @BindView(R.id.card_list) RecyclerView mListCardList;
+    @BindView(R.id.text_page_number) TextView mTextPageNumber;
+    @BindView(R.id.text_card_list_empty) TextView mTextListEmpty;
 
     private boolean mTwoPane;
     private CardListRecyclerAdapter mCardListAdapter;
@@ -37,16 +40,23 @@ public class CardListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_card_list);
 
+        View rootView = findViewById(android.R.id.content);
+
         setupToolbar();
 
         if (findViewById(R.id.card_detail_container) != null) {
             mTwoPane = true;
         }
 
-        View recyclerView = findViewById(R.id.card_list);
-        assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
+        ButterKnife.bind(this, rootView);
+
+        initRecyclerView();
+        initWarningText();
+        initPagerViews();
     }
+
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -70,12 +80,41 @@ public class CardListActivity extends AppCompatActivity {
         }
     }
 
-    private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
+    private void initRecyclerView() {
         mCardListAdapter = new CardListRecyclerAdapter(view -> onCardClicked((MagicCard) view.getTag()));
-        getViewModel().getCurrentCards().observe(this, magicCards -> mCardListAdapter.setData(magicCards));
-        recyclerView.setAdapter(mCardListAdapter);
+        getViewModel().getCurrentCards().observe(this, magicCards -> {
+            mCardListAdapter.setData(magicCards);
+            showEmptyListView(magicCards == null || magicCards.isEmpty());
+        });
+        mListCardList.setAdapter(mCardListAdapter);
     }
 
+    private void initWarningText(){
+        getViewModel().getNetworkState().observe(this,
+                state -> mTextNetworkWarning.setVisibility(CurrentSelectionRepository.LoadingState.NETWORK_ERROR.equals(state) ? View.VISIBLE : View.GONE)
+        );
+    }
+
+    private void initPagerViews(){
+        getViewModel().getCurrentCardsPageCount().observe(this,
+                pages -> onCardPagesChanged(getViewModel().getCurrentCardsPage().getValue(), pages)
+        );
+        getViewModel().getCurrentCardsPage().observe(this,
+                page -> onCardPagesChanged(page, getViewModel().getCurrentCardsPageCount().getValue())
+        );
+    }
+
+    private void showEmptyListView(boolean show){
+        mTextListEmpty.setVisibility(show ? View.VISIBLE : View.GONE);
+        mListCardList.setVisibility(show? View.GONE : View.VISIBLE);
+    }
+
+    private void onCardPagesChanged(Integer current, Integer last){
+        if(current == null || last == null){
+            return;
+        }
+        mTextPageNumber.setText(getString(R.string.paging_label, current, last));
+    }
 
     private void onCardClicked(MagicCard card){
         getViewModel().onCardSelected(card);

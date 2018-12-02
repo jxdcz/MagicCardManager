@@ -14,6 +14,11 @@ import retrofit2.http.QueryMap;
 public interface MagicCardApi {
     String BASE_URL = "https://api.magicthegathering.io/v1/";
 
+    String HEADER_RESP_TOTAL_COUNT = "Total-Count";
+    String HEADER_RESP_COUNT = "Count";
+    String HEADER_RESP_PAGE_SIZE = "Page-Size";
+
+
     @GET("sets")
     LiveData<List<MagicSet>> getAllSets();
 
