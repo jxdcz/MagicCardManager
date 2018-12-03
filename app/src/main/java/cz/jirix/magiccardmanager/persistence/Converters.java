@@ -20,8 +20,6 @@ public class Converters {
     @TypeConverter
     public static String fromArrayList(List<String> list) {
         Gson gson = new Gson();
-        String json = gson.toJson(list);
-        return json;
+        return gson.toJson(list);
     }
-
 }

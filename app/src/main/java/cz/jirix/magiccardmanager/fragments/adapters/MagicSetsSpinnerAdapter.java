@@ -41,5 +41,4 @@ public class MagicSetsSpinnerAdapter extends ArrayAdapter<MagicSet> {
         }
         return convertView;
     }
-
 }

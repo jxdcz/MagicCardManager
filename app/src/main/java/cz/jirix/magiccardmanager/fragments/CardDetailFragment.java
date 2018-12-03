@@ -1,8 +1,8 @@
 package cz.jirix.magiccardmanager.fragments;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +27,7 @@ public class CardDetailFragment extends Fragment {
     @BindView(R.id.progress_image_loading) ProgressBar mProgressLoading;
     @BindView(R.id.image_card) ImageView mImageCard;
 
+    private MagicCard mCurrentCard;
 
     private static final int STATE_LOADING = 1;
     private static final int STATE_NO_IMAGE = 2;
@@ -42,18 +43,11 @@ public class CardDetailFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.card_detail, container, false);
         ButterKnife.bind(this, rootView);
 
         initImageView();
-
         return rootView;
     }
 
@@ -62,6 +56,7 @@ public class CardDetailFragment extends Fragment {
     }
 
     private void loadImage(MagicCard card){
+        mCurrentCard = card;
         if(card == null || card.getImageUrl() == null){
             showLayout(STATE_NO_IMAGE);
             return;
@@ -85,7 +80,9 @@ public class CardDetailFragment extends Fragment {
 
     private void showLayout(int state){
         mTextErrorNoImage.setVisibility(state == STATE_NO_IMAGE || state == STATE_ERROR? View.VISIBLE : View.GONE);
-        mTextErrorNoImage.setText(state == STATE_NO_IMAGE ? R.string.can_t_find_an_image_for_this_card : R.string.image_download_failed);
+        String text = (state == STATE_NO_IMAGE) ?
+                String.format("%s: %s", getString(R.string.can_t_find_an_image_for_this_card), mCurrentCard.getName()) : getString(R.string.image_download_failed);
+        mTextErrorNoImage.setText(text);
 
         mProgressLoading.setVisibility(state == STATE_LOADING ? View.VISIBLE : View.GONE);
         mImageCard.setVisibility(state == STATE_SUCCESS ? View.VISIBLE : View.GONE);

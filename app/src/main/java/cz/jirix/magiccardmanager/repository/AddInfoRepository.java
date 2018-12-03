@@ -8,7 +8,6 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
 
 import cz.jirix.magiccardmanager.model.MagicColor;
 import cz.jirix.magiccardmanager.model.MagicRarity;
@@ -20,8 +19,6 @@ import cz.jirix.magiccardmanager.webservices.MagicCardApi;
 import cz.jirix.magiccardmanager.webservices.MagicSetsResponse;
 import cz.jirix.magiccardmanager.webservices.MagicTypesResponse;
 import io.reactivex.Completable;
-import io.reactivex.Scheduler;
-import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -48,7 +45,7 @@ public class AddInfoRepository implements IRepository{
         mSetDao = setDao;
         mTypeDao = typeDao;
 
-        //TODO persistent
+        //TODO persistent - these do not come from the API, but it still would be better to save them at first launch
         List<MagicColor> colors = new ArrayList<>();
         colors.add(new MagicColor("W", "White"));
         colors.add(new MagicColor("BL", "Black"));
@@ -57,6 +54,7 @@ public class AddInfoRepository implements IRepository{
         colors.add(new MagicColor("B", "Blue"));
         setColors(colors);
 
+        //TODO search by rarities
         List<MagicRarity> rarities = new ArrayList<>();
         rarities.add(new MagicRarity("Land"));
         rarities.add(new MagicRarity("Common"));
@@ -66,7 +64,6 @@ public class AddInfoRepository implements IRepository{
         rarities.add(new MagicRarity("Timeshifted"));
         rarities.add(new MagicRarity("Masterpiece"));
         setRarities(rarities);
-
     }
 
     public void setColors(List<MagicColor> colors){
@@ -75,6 +72,10 @@ public class AddInfoRepository implements IRepository{
 
     public void setRarities(List<MagicRarity> rarities) {
         mLiveRarities.postValue(rarities);
+    }
+
+    public LiveData<List<MagicRarity>> getRarities(){
+        return mLiveRarities;
     }
 
     public LiveData<List<MagicColor>> getLiveColors() {
@@ -140,7 +141,7 @@ public class AddInfoRepository implements IRepository{
         return mLiveTypes;
     }
 
-    private void loadTypesFromWebservice() {
+    public void loadTypesFromWebservice() {
         mMagicWebservice.getTypesCall().enqueue(new Callback<MagicTypesResponse>() {
             @Override
             public void onResponse(@NonNull Call<MagicTypesResponse> call, @NonNull Response<MagicTypesResponse> response) {
@@ -185,9 +186,5 @@ public class AddInfoRepository implements IRepository{
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe();
-    }
-
-    private void firstTimeDbInit(){
-
     }
 }

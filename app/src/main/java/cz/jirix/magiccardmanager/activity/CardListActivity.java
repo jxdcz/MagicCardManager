@@ -12,10 +12,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cz.jirix.magiccardmanager.R;
+import cz.jirix.magiccardmanager.fragments.CardDetailFragment;
 import cz.jirix.magiccardmanager.fragments.adapters.CardListRecyclerAdapter;
 import cz.jirix.magiccardmanager.model.MagicCard;
 import cz.jirix.magiccardmanager.navigation.AppNavigator;
@@ -35,21 +38,27 @@ public class CardListActivity extends AppCompatActivity {
     private boolean mTwoPane;
     private CardListRecyclerAdapter mCardListAdapter;
 
+    // TODO ideally put all this into a fragment (as with MainActivity)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_card_list);
-
         View rootView = findViewById(android.R.id.content);
-
         setupToolbar();
 
         if (findViewById(R.id.card_detail_container) != null) {
             mTwoPane = true;
+            if (savedInstanceState == null) {
+                CardDetailFragment fragment = CardDetailFragment.newInstance();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.card_detail_container, fragment)
+                        .commit();
+            }
         }
 
         ButterKnife.bind(this, rootView);
-
         initRecyclerView();
         initWarningText();
         initPagerViews();
@@ -79,12 +88,14 @@ public class CardListActivity extends AppCompatActivity {
 
     private void initRecyclerView() {
         mCardListAdapter = new CardListRecyclerAdapter(view -> onCardClicked((MagicCard) view.getTag()));
-        getViewModel().getCurrentCards().observe(this, magicCards -> {
-            mCardListAdapter.setData(magicCards);
-            mListCardList.scrollToPosition(0);
-            showEmptyListView(magicCards == null || magicCards.isEmpty());
-        });
+        getViewModel().getCurrentCards().observe(this, this::onCardsChanged);
         mListCardList.setAdapter(mCardListAdapter);
+    }
+
+    private void onCardsChanged(List<MagicCard> cards){
+        mCardListAdapter.setData(cards);
+        mListCardList.scrollToPosition(0);
+        showEmptyListView(cards == null || cards.isEmpty());
     }
 
     private void initWarningText() {
@@ -139,5 +150,4 @@ public class CardListActivity extends AppCompatActivity {
     private CardListViewModel getViewModel() {
         return ViewModelProviders.of(this).get(CardListViewModel.class);
     }
-
 }

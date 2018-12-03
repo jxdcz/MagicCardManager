@@ -1,15 +1,8 @@
 package cz.jirix.magiccardmanager.webservices;
 
-import android.arch.lifecycle.LiveData;
-
-import java.util.List;
-import java.util.Map;
-
-import cz.jirix.magiccardmanager.model.MagicSet;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
-import retrofit2.http.QueryMap;
 
 public interface MagicCardApi {
     /*
@@ -28,9 +21,6 @@ public interface MagicCardApi {
 
     @GET("types")
     Call<MagicTypesResponse> getTypesCall();
-
-    @GET("cards")
-    Call<MagicCardsResponse> getCardsCall(@QueryMap Map<String, String> parameters);
 
     @GET("cards")
     Call<MagicCardsResponse> getCardsCall(@Query("name") String name, @Query("colors") String colors, @Query("setName") String setName, @Query("types") String type, @Query("page") int page);

@@ -10,7 +10,6 @@ public class WebserviceProvider {
 
     // cant use map and search by ID, retrofit doesn't allow that
     private MagicCardApi mMagicService;
-    //todo MORE
 
     private WebserviceProvider(){
     }

@@ -32,5 +32,4 @@ public interface MagicCardDao {
 
     @Delete
     void deleteCards(List<MagicCard> cards);
-
 }

@@ -1,16 +1,13 @@
 package cz.jirix.magiccardmanager.model;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
-
-import cz.jirix.magiccardmanager.persistence.Converters;
 
 @Entity
 public class MagicCard {
@@ -59,6 +56,11 @@ public class MagicCard {
     @SerializedName("imageUrl")
     private String mImageUrl;
 
+
+    @Ignore
+    public MagicCard(@NonNull String id){
+        mId = id;
+    }
 
     public MagicCard(@NonNull String id, String name, String manaCost, float convertedManaCost, List<String> colors, String type, String rarity, String setId, String text, String artist, String power, String toughness, int multiverseId, String imageUrl) {
         mId = id;

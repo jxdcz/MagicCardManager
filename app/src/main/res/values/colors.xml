@@ -5,7 +5,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="white">#FFFFFF</color>
 
-
     <color name="text_slight_dark">#646464</color>
     <color name="text_dark">#111111</color>
     <color name="text_black">#000000</color>
@@ -18,5 +17,4 @@
     <color name="background_light">#DFDFDF</color>
 
     <color name="edit_text_background">#E0E0E0</color>
-
 </resources>

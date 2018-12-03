@@ -24,5 +24,4 @@ public interface MagicTypeDao {
 
     @Delete
     void deleteSets(List<MagicType> types);
-
 }

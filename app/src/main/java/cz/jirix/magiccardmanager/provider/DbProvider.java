@@ -14,7 +14,6 @@ public class DbProvider {
     private MagicDatabase mMagicDatabase;
 
     private DbProvider(){
-
     }
 
     public static DbProvider get(){
@@ -28,7 +27,6 @@ public class DbProvider {
         mMagicDatabase = Room.databaseBuilder(context.getApplicationContext(), MagicDatabase.class, DB_NAME)
                 .fallbackToDestructiveMigration()
                 .build();
-
     }
 
     public MagicDatabase getDatabase(){

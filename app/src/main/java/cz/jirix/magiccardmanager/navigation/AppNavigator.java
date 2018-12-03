@@ -16,7 +16,5 @@ public class AppNavigator {
     public static void goToCardDetailActivity(Context context){
         Intent intent = new Intent(context, CardDetailActivity.class);
         context.startActivity(intent);
-
     }
-
 }

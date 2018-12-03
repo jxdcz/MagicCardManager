@@ -5,14 +5,11 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import cz.jirix.magiccardmanager.model.CardSearchCriteria;
 import cz.jirix.magiccardmanager.model.MagicCard;
 import cz.jirix.magiccardmanager.model.MagicSet;
-import cz.jirix.magiccardmanager.model.MagicType;
 import cz.jirix.magiccardmanager.persistence.MagicCardDao;
 import cz.jirix.magiccardmanager.persistence.MagicSetDao;
 import cz.jirix.magiccardmanager.webservices.MagicCardApi;
@@ -97,35 +94,37 @@ public class CurrentSelectionRepository implements IRepository {
         call.enqueue(new Callback<MagicCardsResponse>() {
             @Override
             public void onResponse(@NonNull Call<MagicCardsResponse> call, @NonNull Response<MagicCardsResponse> response) {
-                //TODO debug
-                if (criteria.getPowerMin() > 25) {
-                    onFailure(call, new Throwable());
-                    return;
-                }
-
-                int returnedCount = Integer.parseInt(response.headers().get(MagicCardApi.HEADER_RESP_COUNT));
-                int totalCount = Integer.parseInt(response.headers().get(MagicCardApi.HEADER_RESP_TOTAL_COUNT));
-
-                int pages = returnedCount == 0 ? 1 : totalCount / returnedCount; // if we get no results
-                mPagesCount.postValue(pages);
-                mCurrentPage.postValue(page);
-
-                if (response.body() != null) {
-                    List<MagicCard> cards = response.body().getCards();
-                    saveCardsToDb(cards);
-                    mCurrentCards.postValue(cards);
-                }
-                mDataLoadingState.setValue(LoadingState.SUCCESS);
+                onNetworkLoadCardsSuccess(page, response);
             }
 
             @Override
             public void onFailure(@NonNull Call<MagicCardsResponse> call, @NonNull Throwable t) {
-                Log.w(TAG, "Fetching cards from the api failed, fetching local results");
-                mDataLoadingState.setValue(LoadingState.NETWORK_ERROR);
-                resetPages();
-                loadCardsFromDb(criteria);
+                onNetworkLoadCardsFailure(criteria, t);
             }
         });
+    }
+
+    private void onNetworkLoadCardsSuccess(int page, Response<MagicCardsResponse> response){
+        int returnedCount = Integer.parseInt(response.headers().get(MagicCardApi.HEADER_RESP_COUNT));
+        int totalCount = Integer.parseInt(response.headers().get(MagicCardApi.HEADER_RESP_TOTAL_COUNT));
+
+        int pages = returnedCount == 0 ? 1 : totalCount / returnedCount; // if we get no results
+        mPagesCount.postValue(pages);
+        mCurrentPage.postValue(page);
+
+        if (response.body() != null) {
+            List<MagicCard> cards = response.body().getCards();
+            saveCardsToDb(cards);
+            mCurrentCards.postValue(cards);
+        }
+        mDataLoadingState.setValue(LoadingState.SUCCESS);
+    }
+
+    private void onNetworkLoadCardsFailure(CardSearchCriteria criteria, Throwable t){
+        Log.w(TAG, "Fetching cards from the api failed, fetching local results: " + t);
+        mDataLoadingState.setValue(LoadingState.NETWORK_ERROR);
+        resetPages();
+        loadCardsFromDb(criteria);
     }
 
     private void loadCardsFromDb(CardSearchCriteria criteria) {
@@ -182,6 +181,10 @@ public class CurrentSelectionRepository implements IRepository {
 
     public void setCurrentSearchCriteria(CardSearchCriteria searchCriteria) {
         mCurrentSearchCriteria = searchCriteria;
+    }
+
+    public void setCurrentCards(List<MagicCard> cards){
+        mCurrentCards.postValue(cards);
     }
 
     public LiveData<List<MagicCard>> getCurrentCards() {
