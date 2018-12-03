@@ -14,11 +14,17 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/text_error_no_image_url"
+            android:id="@+id/text_error_image_download_failed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/can_t_find_an_image_for_this_card"/>
+
+        <ProgressBar
+            android:id="@+id/progress_image_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
 
         <ImageView
             android:id="@+id/image_card"

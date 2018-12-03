@@ -4,6 +4,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -13,9 +14,6 @@ import cz.jirix.magiccardmanager.persistence.Converters;
 
 @Entity
 public class MagicCard {
-
-    // would be much better with Kotlin data classes
-    // yes, could use GSON, but I for JSON, I prefer the old school
 
     @PrimaryKey
     @NonNull
@@ -29,7 +27,7 @@ public class MagicCard {
     private String mManaCost;
 
     @SerializedName("cmc")
-    private int mConvertedManaCost;
+    private float mConvertedManaCost;
 
     @SerializedName("colors")
     private List<String> mColors;
@@ -62,7 +60,7 @@ public class MagicCard {
     private String mImageUrl;
 
 
-    public MagicCard(String id, String name, String manaCost, int convertedManaCost, List<String> colors, String type, String rarity, String setId, String text, String artist, String power, String toughness, int multiverseId, String imageUrl) {
+    public MagicCard(@NonNull String id, String name, String manaCost, float convertedManaCost, List<String> colors, String type, String rarity, String setId, String text, String artist, String power, String toughness, int multiverseId, String imageUrl) {
         mId = id;
         mName = name;
         mManaCost = manaCost;
@@ -79,11 +77,12 @@ public class MagicCard {
         mImageUrl = imageUrl;
     }
 
+    @NonNull
     public String getId() {
         return mId;
     }
 
-    public void setId(String id) {
+    public void setId(@NonNull String id) {
         mId = id;
     }
 
@@ -103,11 +102,11 @@ public class MagicCard {
         mManaCost = manaCost;
     }
 
-    public int getConvertedManaCost() {
+    public float getConvertedManaCost() {
         return mConvertedManaCost;
     }
 
-    public void setConvertedManaCost(int convertedManaCost) {
+    public void setConvertedManaCost(float convertedManaCost) {
         mConvertedManaCost = convertedManaCost;
     }
 
@@ -190,8 +189,5 @@ public class MagicCard {
     public void setImageUrl(String imageUrl) {
         mImageUrl = imageUrl;
     }
-
-
-
 
 }

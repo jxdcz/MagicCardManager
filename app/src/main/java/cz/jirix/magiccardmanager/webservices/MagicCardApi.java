@@ -12,18 +12,16 @@ import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
 public interface MagicCardApi {
+    /*
+    WIKI
+    https://docs.magicthegathering.io
+     */
+
     String BASE_URL = "https://api.magicthegathering.io/v1/";
 
     String HEADER_RESP_TOTAL_COUNT = "Total-Count";
     String HEADER_RESP_COUNT = "Count";
     String HEADER_RESP_PAGE_SIZE = "Page-Size";
-
-
-    @GET("sets")
-    LiveData<List<MagicSet>> getAllSets();
-
-    @GET("sets")
-    LiveData<List<MagicSet>> getSets(@Query("name") String name, @Query("block") String block);
 
     @GET("sets")
     Call<MagicSetsResponse> getSetsCall();
@@ -35,6 +33,6 @@ public interface MagicCardApi {
     Call<MagicCardsResponse> getCardsCall(@QueryMap Map<String, String> parameters);
 
     @GET("cards")
-    Call<MagicCardsResponse> getCardsCall(@Query("name") String name, @Query("colors") String colors, @Query("setName") String setName, @Query("types") String type);
+    Call<MagicCardsResponse> getCardsCall(@Query("name") String name, @Query("colors") String colors, @Query("setName") String setName, @Query("types") String type, @Query("page") int page);
 
 }

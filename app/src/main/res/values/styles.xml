@@ -1,11 +1,20 @@
-<resources>
+<resources xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/background_dark</item>
+        <item name="colorPrimaryDark">@color/background_darker</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="android:background">@color/background_dark</item>
+        <item name="android:textColor">@color/text_light</item>
+
+        <item name="editTextStyle">@style/EditTextStyle</item>
+        <item name="autoCompleteTextViewStyle">@style/EditTextStyle</item>
+        <item name="buttonStyle">@style/ButtonStyle</item>
+        <item name="spinnerStyle">@style/SpinnerStyle</item>
+
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -13,8 +22,50 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="ButtonStyle" parent="Base.Widget.AppCompat.Button">
+        <item name="android:textColor">@drawable/button_text_color_selector</item>
+        <item name="android:background">@color/background_light</item>
+    </style>
+
+    <style name="SpinnerStyle" parent="Base.Widget.AppCompat.Spinner">
+        <item name="android:background">@color/background_darker</item>
+        <!-- TODO make it work -->
+    </style>
+
+
+    <style name="EditTextStyle" parent="android:Widget.EditText">
+        <item name="android:padding">10dp</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textColorHint">@color/text_slight_dark</item>
+        <item name="android:background">@drawable/edit_text_background</item>
+        <item name="android:editTextBackground">@drawable/edit_text_background</item>
+    </style>
+
+    <style name="RangeBarStyle">
+        <item name="mrb_pinColor">@color/white</item>
+        <item name="mrb_pinMaxFont">15sp</item>
+        <item name="mrb_pinMinFont">12sp</item>
+        <item name="mrb_pinRadius">14dp</item>
+        <item name="mrb_pinTextColor">@color/text_dark</item>
+        <item name="mrb_rangeBar">true</item>
+        <item name="mrb_rangeBarPaddingBottom">20dp</item>
+        <item name="mrb_rangeBar_rounded">true</item>
+        <item name="mrb_selectorBoundaryColor">@color/background_darker</item>
+        <item name="mrb_selectorBoundarySize">2dp</item>
+        <item name="mrb_selectorSize">@dimen/rangebar_selector_size</item>
+        <item name="mrb_temporaryPins">false</item>
+        <item name="mrb_tickInterval">1</item>
+        <item name="mrb_connectingLineColor">@color/colorAccent</item>
+        <item name="mrb_selectorColor">@color/text_light</item>
+
+    </style>
+
+
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
+
+    <color name="background_light">#DFDFDF</color>
 </resources>

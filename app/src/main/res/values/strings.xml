@@ -23,7 +23,7 @@
     <string name="color">Color</string>
     <string name="card_toughness">Toughness</string>
     <string name="search">Search</string>
-    <string name="title_card_list">Cards</string>
+    <string name="title_card_list">Search results</string>
     <string name="title_card_detail">Card Detail</string>
     <string name="error_network_load_failed">Data loading failed, using local data</string>
     <string name="card_detail_as_an_image">Card detail as an image</string>
@@ -35,4 +35,7 @@
     <string name="next_page">Next page</string>
     <string name="warning_network_error_incomplete_results">Warning, network error detected, results might be incomplete</string>
     <string name="error_no_items_found_for_criteria">No items found for given criteria</string>
+    <string name="image_download_failed">Image download failed</string>
+    <string name="all_possible">All possible</string>
+    <string name="loading_with_dots">Loading...</string>
 </resources>

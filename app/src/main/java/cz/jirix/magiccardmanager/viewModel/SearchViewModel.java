@@ -90,7 +90,7 @@ public class SearchViewModel extends AndroidViewModel {
         mCurrentSelectionRepository.setCurrentSearchCriteria(mCurrentSelection);
         mStateObserver.ignoreNextChange();
         mCurrentSelectionRepository.getLoadingState().observeForever(mStateObserver);
-        mCurrentSelectionRepository.loadCards(mCurrentSelection);
+        mCurrentSelectionRepository.loadCards(mCurrentSelection, 1);
     }
 
     private void onDataLoadingStateChanged(String state) {
@@ -120,7 +120,7 @@ public class SearchViewModel extends AndroidViewModel {
 
         private boolean mIgnoreNextChange;
 
-        public void ignoreNextChange() {
+        void ignoreNextChange() {
             mIgnoreNextChange = true;
         }
 

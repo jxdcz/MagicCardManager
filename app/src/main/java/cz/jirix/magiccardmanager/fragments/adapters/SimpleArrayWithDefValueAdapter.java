@@ -10,17 +10,16 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.jirix.magiccardmanager.model.MagicColor;
-
 public class SimpleArrayWithDefValueAdapter<T> extends BaseAdapter {
-    public static final String DEF_VALUE = "---------";
-
     private LayoutInflater mInflater;
     private List<T> mData;
+    private String mDefaultValue;
 
-    public SimpleArrayWithDefValueAdapter(Context context) {
+
+    public SimpleArrayWithDefValueAdapter(Context context, String defaultValue) {
         mInflater = LayoutInflater.from(context);
         mData = new ArrayList<>();
+        mDefaultValue = defaultValue;
     }
 
     public void setData(List<T> items) {
@@ -30,12 +29,12 @@ public class SimpleArrayWithDefValueAdapter<T> extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return mData.size()+1;
+        return mData.size() + 1;
     }
 
     @Override
     public T getItem(int i) {
-        return i == 0 ? null : mData.get(i-1);
+        return i == 0 ? null : mData.get(i - 1);
     }
 
     @Override
@@ -50,14 +49,14 @@ public class SimpleArrayWithDefValueAdapter<T> extends BaseAdapter {
         }
 
         Object item = getItem(i);
-        ((TextView) convertView).setText(item == null ? DEF_VALUE : item.toString());
+        ((TextView) convertView).setText(item == null ? mDefaultValue : item.toString());
         return convertView;
     }
 
     public int getItemPosition(String value) {
-        for(int i=0;i<mData.size();i++){
-            Object item = mData.get(i);
-            if(item.toString().equals(value)){
+        for (int i = 0; i < getCount(); i++) {
+            Object item = getItem(i);
+            if (item != null && item.toString().equals(value)) {
                 return i;
             }
         }

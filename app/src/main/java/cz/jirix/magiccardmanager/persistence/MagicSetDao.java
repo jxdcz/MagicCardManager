@@ -25,4 +25,6 @@ public interface MagicSetDao {
     @Delete
     void deleteSets(List<MagicSet> sets);
 
+    @Query("SELECT * FROM MAGICSET WHERE mName = :name")
+    MagicSet getByName(String name);
 }

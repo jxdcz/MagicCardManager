@@ -68,13 +68,38 @@
         tools:listitem="@layout/card_list_content"/>
 
 
+    <LinearLayout
+        android:id="@+id/layout_loading_new_results"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/background_darker"
+        android:layout_centerInParent="true"
+        android:padding="15dp"
+        android:orientation="horizontal">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/background_darker"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/background_darker"
+            android:layout_gravity="center"
+            android:text="@string/loading_with_dots"/>
+
+    </LinearLayout>
+
+
     <TextView
         android:id="@+id/text_card_list_empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:layout_above="@id/layout_paging"
         android:layout_below="@id/text_warning_network_error"
+        android:gravity="center"
         android:text="@string/error_no_items_found_for_criteria"/>
 
 

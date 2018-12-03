@@ -7,11 +7,22 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import cz.jirix.magiccardmanager.model.CardSearchCriteria;
 import cz.jirix.magiccardmanager.model.MagicCard;
+import cz.jirix.magiccardmanager.model.MagicSet;
+import cz.jirix.magiccardmanager.model.MagicType;
+import cz.jirix.magiccardmanager.persistence.MagicCardDao;
+import cz.jirix.magiccardmanager.persistence.MagicSetDao;
 import cz.jirix.magiccardmanager.webservices.MagicCardApi;
 import cz.jirix.magiccardmanager.webservices.MagicCardsResponse;
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -20,58 +31,74 @@ public class CurrentSelectionRepository implements IRepository {
     private static final String TAG = CurrentSelectionRepository.class.getSimpleName();
 
     private MagicCardApi mCardApi;
+    private MagicCardDao mCardDao;
+    private MagicSetDao mSetDao;
 
     private MutableLiveData<String> mDataLoadingState = new MutableLiveData<>();
     private MutableLiveData<MagicCard> mSelectedCard = new MutableLiveData<>();
     private MutableLiveData<Integer> mCurrentPage = new MutableLiveData<>();
-    private MutableLiveData<Integer> mPagesOfResults = new MutableLiveData<>();
+    private MutableLiveData<Integer> mPagesCount = new MutableLiveData<>();
     private MutableLiveData<List<MagicCard>> mCurrentCards = new MutableLiveData<>();
     private CardSearchCriteria mCurrentSearchCriteria;
 
 
-    public CurrentSelectionRepository(MagicCardApi cardApi) {
+    public CurrentSelectionRepository(MagicCardApi cardApi, MagicCardDao cardDao, MagicSetDao setDao) {
         mCardApi = cardApi;
+        mCardDao = cardDao;
+        mSetDao = setDao;
         mDataLoadingState.setValue(LoadingState.IDLE);
         resetPages();
     }
 
-    public void selectCard(String cardId){
+    public void selectCard(String cardId) {
         // we could just pass the card itself, but this is safer
         List<MagicCard> currentCards = mCurrentCards.getValue();
-        if(currentCards == null){
+        if (currentCards == null) {
             return;
         }
 
         MagicCard selected = null;
         for (MagicCard card : currentCards) {
-            if(card.getId().equals(cardId)){
+            if (card.getId().equals(cardId)) {
                 selected = card;
             }
         }
 
-        if(selected != null){
+        if (selected != null) {
             mSelectedCard.postValue(selected);
         }
     }
 
-    public LiveData<String> getLoadingState(){
+    public LiveData<String> getLoadingState() {
         return mDataLoadingState;
     }
 
-    public void loadCards(CardSearchCriteria criteria){
+    public void loadCardsPrevPage() {
+        int current = mCurrentPage.getValue() == null ? 1 : mCurrentPage.getValue();
+        loadCards(mCurrentSearchCriteria, current <= 1 ? current : current - 1);
+    }
+
+    public void loadCardsNextPage() {
+        int current = mCurrentPage.getValue() == null ? 1 : mCurrentPage.getValue();
+        int last = mPagesCount.getValue() == null ? current : mPagesCount.getValue();
+        loadCards(mCurrentSearchCriteria, current >= last ? current : current + 1);
+    }
+
+    public void loadCards(CardSearchCriteria criteria, int page) {
         mDataLoadingState.setValue(LoadingState.LOADING);
         Call<MagicCardsResponse> call = mCardApi.getCardsCall(
                 criteria.getCardName(),
                 criteria.getColor(),
                 criteria.getSetName(),
-                criteria.getType()
+                criteria.getType(),
+                page
         );
 
         call.enqueue(new Callback<MagicCardsResponse>() {
             @Override
             public void onResponse(@NonNull Call<MagicCardsResponse> call, @NonNull Response<MagicCardsResponse> response) {
                 //TODO debug
-                if(criteria.getPowerMin() > 50){
+                if (criteria.getPowerMin() > 25) {
                     onFailure(call, new Throwable());
                     return;
                 }
@@ -79,11 +106,14 @@ public class CurrentSelectionRepository implements IRepository {
                 int returnedCount = Integer.parseInt(response.headers().get(MagicCardApi.HEADER_RESP_COUNT));
                 int totalCount = Integer.parseInt(response.headers().get(MagicCardApi.HEADER_RESP_TOTAL_COUNT));
 
-                int pages = totalCount / returnedCount;
-                mPagesOfResults.postValue(pages);
+                int pages = returnedCount == 0 ? 1 : totalCount / returnedCount; // if we get no results
+                mPagesCount.postValue(pages);
+                mCurrentPage.postValue(page);
 
                 if (response.body() != null) {
-                    mCurrentCards.postValue(response.body().getCards());
+                    List<MagicCard> cards = response.body().getCards();
+                    saveCardsToDb(cards);
+                    mCurrentCards.postValue(cards);
                 }
                 mDataLoadingState.setValue(LoadingState.SUCCESS);
             }
@@ -93,14 +123,83 @@ public class CurrentSelectionRepository implements IRepository {
                 Log.w(TAG, "Fetching cards from the api failed, fetching local results");
                 mDataLoadingState.setValue(LoadingState.NETWORK_ERROR);
                 resetPages();
-                //TODO load room results
-                mCurrentCards.setValue(new ArrayList<>());
+                loadCardsFromDb(criteria);
             }
         });
     }
 
-    private void resetPages(){
-        mPagesOfResults.postValue(1);
+    private void loadCardsFromDb(CardSearchCriteria criteria) {
+        Single.fromCallable(() -> {
+
+            MagicSet set = mSetDao.getByName(criteria.getSetName());
+            return mCardDao.getAllBy(
+                    anyIfNotSet(criteria.getCardName()),
+                    anyIfNotSet(set.getCode()),
+                    anyIfNotSet(criteria.getType())
+            );
+
+
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<List<MagicCard>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onSuccess(List<MagicCard> magicTypes) {
+                        mCurrentCards.postValue(magicTypes);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+                });
+
+        /*
+        mCardDao.getAllBy(
+                anyIfNotSet(criteria.getCardName()),
+                anyIfNotSet(criteria.getSetName()),
+                anyIfNotSet(criteria.getColor()),
+                anyIfNotSet(criteria.getType())
+        )*/
+        /*
+        mCardDao.getAllBy(anyIfNotSet(criteria.getSetName()))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<List<MagicCard>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onSuccess(List<MagicCard> magicTypes) {
+                        mCurrentCards.postValue(magicTypes);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+                });
+                */
+    }
+
+    private String anyIfNotSet(String param){
+        return param == null || param.isEmpty() ? "%%" : param;
+    }
+
+    private void saveCardsToDb(List<MagicCard> cards) {
+        Completable.fromCallable(() ->{
+            mCardDao.insertAll(cards);
+            return true;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
+    }
+
+    private void resetPages() {
+        mPagesCount.postValue(1);
         mCurrentPage.postValue(1);
     }
 
@@ -121,15 +220,14 @@ public class CurrentSelectionRepository implements IRepository {
     }
 
     public LiveData<Integer> getCurrentCardsPageCount() {
-        return mPagesOfResults;
+        return mPagesCount;
     }
 
     public LiveData<Integer> getCurrentCardsPage() {
         return mCurrentPage;
     }
 
-
-    public static class LoadingState{
+    public static class LoadingState {
         public static final String IDLE = "idle";
         public static final String LOADING = "loading";
         public static final String NETWORK_ERROR = "networkError";

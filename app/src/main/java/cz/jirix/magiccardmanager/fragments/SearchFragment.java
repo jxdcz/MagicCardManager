@@ -11,18 +11,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.appyvet.materialrangebar.RangeBar;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cz.jirix.magiccardmanager.R;
-import cz.jirix.magiccardmanager.fragments.adapters.SimpleArrayWithDefValueAdapter;
 import cz.jirix.magiccardmanager.fragments.adapters.MagicSetsSpinnerAdapter;
+import cz.jirix.magiccardmanager.fragments.adapters.SimpleArrayWithDefValueAdapter;
 import cz.jirix.magiccardmanager.model.CardSearchCriteria;
 import cz.jirix.magiccardmanager.model.MagicColor;
 import cz.jirix.magiccardmanager.model.MagicType;
@@ -40,10 +41,8 @@ public class SearchFragment extends Fragment {
     @BindView(R.id.spinner_type) Spinner mSpinnerType;
 
     @BindView(R.id.edit_card_name) EditText mEditCardName;
-    @BindView(R.id.edit_power_min) EditText mEditPowerMin;
-    @BindView(R.id.edit_power_max) EditText mEditPowerMax;
-    @BindView(R.id.edit_toughness_min) EditText mEditToughnessMin;
-    @BindView(R.id.edit_toughness_max) EditText mEditToughnessMax;
+    @BindView(R.id.range_bar_power) RangeBar mRangeBarPower;
+    @BindView(R.id.range_bar_toughness) RangeBar mRangeBarToughness;
 
     @BindView(R.id.button_search) LoadingButton mButtonSearch;
 
@@ -67,8 +66,8 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
         repopulateLastSearch();
     }
 
@@ -81,8 +80,8 @@ public class SearchFragment extends Fragment {
         initSpinnerSets();
         initSpinnerTypes();
         initCardNameEdit();
-        initToughnessEdit();
-        initPowerEdit();
+        initToughnessRange();
+        initPowerRange();
         observeLoadingState();
 
         return rootView;
@@ -96,59 +95,44 @@ public class SearchFragment extends Fragment {
         mAutocompleteSet.setThreshold(999);
         mAutocompleteSet.setText(lastSearch.getSetName());
         mAutocompleteSet.setThreshold(lastThreshold);
-        //mSpinnerColor.setSelection(mAdapterColors.getItemPosition(lastSearch.getColor()));
+
+        mSpinnerColor.setSelection(mAdapterColors.getItemPosition(lastSearch.getColor()));
+        mSpinnerType.setSelection(mAdapterTypes.getItemPosition(lastSearch.getType()));
+
+        if (lastSearch.getPowerMin() != 0 && lastSearch.getPowerMax() != 0) {
+            mRangeBarPower.setRangePinsByValue(lastSearch.getPowerMin(), lastSearch.getPowerMax());
+        }
+        if (lastSearch.getToughnessMin() != 0 && lastSearch.getToughnessMax() != 0) {
+            mRangeBarToughness.setRangePinsByValue(lastSearch.getToughnessMin(), lastSearch.getToughnessMax());
+        }
     }
 
 
-    private int parseInt(String string){
-        if(string == null || string.isEmpty()){
+    private int parseInt(String string) {
+        if (string == null || string.isEmpty()) {
             return 0;
         }
         return Integer.parseInt(string);
     }
 
-    private void initPowerEdit() {
-        TextWatcher watcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
+    private void initPowerRange() {
+        mRangeBarPower.setOnRangeBarChangeListener((rangeBar, leftPinIndex, rightPinIndex, leftPinValue, rightPinValue) ->
                 getViewModel().onPowerEntered(
-                        parseInt(mEditPowerMin.getText().toString()),
-                        parseInt(mEditPowerMax.getText().toString())
-                );
-            }
-        };
-        mEditPowerMin.addTextChangedListener(watcher);
-        mEditPowerMax.addTextChangedListener(watcher);
+                        parseInt(leftPinValue),
+                        parseInt(rightPinValue)
+
+                )
+        );
     }
 
-    private void initToughnessEdit() {
-        TextWatcher watcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
+    private void initToughnessRange() {
+        mRangeBarToughness.setOnRangeBarChangeListener((rangeBar, leftPinIndex, rightPinIndex, leftPinValue, rightPinValue) ->
                 getViewModel().onToughnessEntered(
-                        parseInt(mEditToughnessMin.getText().toString()),
-                        parseInt(mEditToughnessMax.getText().toString())
-                );
-            }
-        };
-        mEditToughnessMin.addTextChangedListener(watcher);
-        mEditToughnessMax.addTextChangedListener(watcher);
+                        parseInt(leftPinValue),
+                        parseInt(rightPinValue)
+
+                )
+        );
     }
 
     private void initCardNameEdit() {
@@ -170,7 +154,7 @@ public class SearchFragment extends Fragment {
 
 
     private void initSpinnerColors() {
-        mAdapterColors = new SimpleArrayWithDefValueAdapter<>(getContext());
+        mAdapterColors = new SimpleArrayWithDefValueAdapter<>(getContext(), getString(R.string.all_possible));
         mSpinnerColor.setAdapter(mAdapterColors);
         mSpinnerColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -192,7 +176,7 @@ public class SearchFragment extends Fragment {
     }
 
     private void initSpinnerTypes() {
-        mAdapterTypes = new SimpleArrayWithDefValueAdapter<>(getContext());
+        mAdapterTypes = new SimpleArrayWithDefValueAdapter<>(getContext(), getString(R.string.all_possible));
         mSpinnerType.setAdapter(mAdapterTypes);
         mSpinnerType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

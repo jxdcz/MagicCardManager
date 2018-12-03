@@ -11,7 +11,7 @@ import cz.jirix.magiccardmanager.model.MagicCard;
 import cz.jirix.magiccardmanager.provider.RepositoryProvider;
 import cz.jirix.magiccardmanager.repository.CurrentSelectionRepository;
 
-public class CardListViewModel extends AndroidViewModel{
+public class CardListViewModel extends AndroidViewModel {
 
     private CurrentSelectionRepository mSelectionRepository;
 
@@ -20,7 +20,7 @@ public class CardListViewModel extends AndroidViewModel{
         mSelectionRepository = (CurrentSelectionRepository) RepositoryProvider.get().getRepository(RepositoryProvider.Repo.PREFERENCES);
     }
 
-    public LiveData<List<MagicCard>> getCurrentCards(){
+    public LiveData<List<MagicCard>> getCurrentCards() {
         return mSelectionRepository.getCurrentCards();
     }
 
@@ -38,5 +38,13 @@ public class CardListViewModel extends AndroidViewModel{
 
     public LiveData<Integer> getCurrentCardsPage() {
         return mSelectionRepository.getCurrentCardsPage();
+    }
+
+    public void onNextPage() {
+        mSelectionRepository.loadCardsNextPage();
+    }
+
+    public void onPrevPage() {
+        mSelectionRepository.loadCardsPrevPage();
     }
 }

@@ -32,7 +32,11 @@ public class RepositoryProvider {
                 dbProvider.getDatabase().magicSetDao(),
                 dbProvider.getDatabase().magicTypeDao()
         ));
-        mRepositories.put(Repo.PREFERENCES, new CurrentSelectionRepository(webserviceProvider.getMagicService()));
+        mRepositories.put(Repo.PREFERENCES, new CurrentSelectionRepository(
+                webserviceProvider.getMagicService(),
+                dbProvider.getDatabase().magicCardDao(),
+                dbProvider.getDatabase().magicSetDao()
+        ));
     }
 
     public IRepository getRepository(String type) {

@@ -2,24 +2,21 @@ package cz.jirix.magiccardmanager.activity;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import cz.jirix.magiccardmanager.R;
+import cz.jirix.magiccardmanager.fragments.adapters.CardListRecyclerAdapter;
 import cz.jirix.magiccardmanager.model.MagicCard;
 import cz.jirix.magiccardmanager.navigation.AppNavigator;
 import cz.jirix.magiccardmanager.repository.CurrentSelectionRepository;
@@ -31,6 +28,9 @@ public class CardListActivity extends AppCompatActivity {
     @BindView(R.id.card_list) RecyclerView mListCardList;
     @BindView(R.id.text_page_number) TextView mTextPageNumber;
     @BindView(R.id.text_card_list_empty) TextView mTextListEmpty;
+    @BindView(R.id.button_page_prev) Button mButtonPagePrev;
+    @BindView(R.id.button_page_next) Button mButtonPageNext;
+    @BindView(R.id.layout_loading_new_results) View mLayoutLoading;
 
     private boolean mTwoPane;
     private CardListRecyclerAdapter mCardListAdapter;
@@ -55,9 +55,6 @@ public class CardListActivity extends AppCompatActivity {
         initPagerViews();
     }
 
-
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -68,7 +65,7 @@ public class CardListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupToolbar(){
+    private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
@@ -84,18 +81,20 @@ public class CardListActivity extends AppCompatActivity {
         mCardListAdapter = new CardListRecyclerAdapter(view -> onCardClicked((MagicCard) view.getTag()));
         getViewModel().getCurrentCards().observe(this, magicCards -> {
             mCardListAdapter.setData(magicCards);
+            mListCardList.scrollToPosition(0);
             showEmptyListView(magicCards == null || magicCards.isEmpty());
         });
         mListCardList.setAdapter(mCardListAdapter);
     }
 
-    private void initWarningText(){
-        getViewModel().getNetworkState().observe(this,
-                state -> mTextNetworkWarning.setVisibility(CurrentSelectionRepository.LoadingState.NETWORK_ERROR.equals(state) ? View.VISIBLE : View.GONE)
-        );
+    private void initWarningText() {
+        getViewModel().getNetworkState().observe(this, state -> {
+            mTextNetworkWarning.setVisibility(CurrentSelectionRepository.LoadingState.NETWORK_ERROR.equals(state) ? View.VISIBLE : View.GONE);
+            mLayoutLoading.setVisibility(CurrentSelectionRepository.LoadingState.LOADING.equals(state) ? View.VISIBLE : View.GONE);
+        });
     }
 
-    private void initPagerViews(){
+    private void initPagerViews() {
         getViewModel().getCurrentCardsPageCount().observe(this,
                 pages -> onCardPagesChanged(getViewModel().getCurrentCardsPage().getValue(), pages)
         );
@@ -104,75 +103,41 @@ public class CardListActivity extends AppCompatActivity {
         );
     }
 
-    private void showEmptyListView(boolean show){
-        mTextListEmpty.setVisibility(show ? View.VISIBLE : View.GONE);
-        mListCardList.setVisibility(show? View.GONE : View.VISIBLE);
+    @OnClick(R.id.button_page_prev)
+    void onPrevPageClicked() {
+        getViewModel().onPrevPage();
     }
 
-    private void onCardPagesChanged(Integer current, Integer last){
-        if(current == null || last == null){
+    @OnClick(R.id.button_page_next)
+    void onNextPageClicked() {
+        getViewModel().onNextPage();
+    }
+
+
+    private void showEmptyListView(boolean show) {
+        mTextListEmpty.setVisibility(show ? View.VISIBLE : View.GONE);
+        mListCardList.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+
+    private void onCardPagesChanged(Integer current, Integer last) {
+        if (current == null || last == null) {
             return;
         }
         mTextPageNumber.setText(getString(R.string.paging_label, current, last));
+        mButtonPagePrev.setEnabled(current > 1);
+        mButtonPageNext.setEnabled(current < last);
     }
 
-    private void onCardClicked(MagicCard card){
+    private void onCardClicked(MagicCard card) {
         getViewModel().onCardSelected(card);
 
-        if(!mTwoPane){
+        if (!mTwoPane) {
             AppNavigator.goToCardDetailActivity(this);
         }
     }
 
-    private CardListViewModel getViewModel(){
+    private CardListViewModel getViewModel() {
         return ViewModelProviders.of(this).get(CardListViewModel.class);
     }
 
-    public static class CardListRecyclerAdapter extends RecyclerView.Adapter<CardListRecyclerAdapter.ViewHolder> {
-
-        private List<MagicCard> mData;
-        private View.OnClickListener mOnClickListener;
-
-        CardListRecyclerAdapter(View.OnClickListener listener) {
-            mData = new ArrayList<>();
-            mOnClickListener = listener;
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_list_content, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-            holder.mIdView.setText(String.valueOf(position));
-            holder.mContentView.setText(mData.get(position).getName());
-
-            holder.itemView.setTag(mData.get(position));
-            holder.itemView.setOnClickListener(mOnClickListener);
-        }
-
-        @Override
-        public int getItemCount() {
-            return mData.size();
-        }
-
-        public void setData(List<MagicCard> data) {
-            mData = data;
-            notifyDataSetChanged();
-        }
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            final TextView mIdView;
-            final TextView mContentView;
-
-            ViewHolder(View view) {
-                super(view);
-                mIdView = view.findViewById(R.id.id_text);
-                mContentView = view.findViewById(R.id.content);
-            }
-        }
-    }
 }
