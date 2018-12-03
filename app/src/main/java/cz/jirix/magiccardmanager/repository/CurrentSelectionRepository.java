@@ -130,41 +130,14 @@ public class CurrentSelectionRepository implements IRepository {
 
     private void loadCardsFromDb(CardSearchCriteria criteria) {
         Single.fromCallable(() -> {
-
             MagicSet set = mSetDao.getByName(criteria.getSetName());
             return mCardDao.getAllBy(
                     anyIfNotSet(criteria.getCardName()),
-                    anyIfNotSet(set.getCode()),
-                    anyIfNotSet(criteria.getType())
+                    anyIfNotSet(set == null ? null : set.getCode()),
+                    anyIfNotSet(criteria.getType()),
+                    anyIfNotSet(criteria.getColor())
             );
-
-
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<List<MagicCard>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                    }
-
-                    @Override
-                    public void onSuccess(List<MagicCard> magicTypes) {
-                        mCurrentCards.postValue(magicTypes);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                    }
-                });
-
-        /*
-        mCardDao.getAllBy(
-                anyIfNotSet(criteria.getCardName()),
-                anyIfNotSet(criteria.getSetName()),
-                anyIfNotSet(criteria.getColor()),
-                anyIfNotSet(criteria.getType())
-        )*/
-        /*
-        mCardDao.getAllBy(anyIfNotSet(criteria.getSetName()))
+        })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<List<MagicCard>>() {
@@ -181,7 +154,7 @@ public class CurrentSelectionRepository implements IRepository {
                     public void onError(Throwable e) {
                     }
                 });
-                */
+
     }
 
     private String anyIfNotSet(String param){

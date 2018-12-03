@@ -20,14 +20,11 @@ public interface MagicCardDao {
     @Query("SELECT * FROM MagicCard")
     Single<List<MagicCard>> getAllRx();
 
-    @Query("SELECT * FROM MagicCard WHERE mSetId = :setId AND mName LIKE '%' || :name || '%' AND mColors LIKE '%' || :color || '%' AND mType = :type")
-    Single<List<MagicCard>> getAllBy(String name, String setId, String color, String type);
+    @Query("SELECT * FROM MagicCard WHERE mSetId LIKE '%' || :setId || '%' AND mType LIKE '%' || :type || '%' AND mName LIKE '%' || :name || '%' AND mColors LIKE '%' || :color || '%'")
+    List<MagicCard> getAllBy(String name, String setId, String type, String color);
 
-    @Query("SELECT * FROM MagicCard WHERE mSetId = :setId AND mType = :type AND mName LIKE '%' || :name || '%'")
-    List<MagicCard> getAllBy(String name, String setId, String type);
-
-    @Query("SELECT * FROM MagicCard WHERE mSetId = :setId")
-    List<MagicCard> getAllBy(String setId);
+    @Query("SELECT * FROM MagicCard WHERE mName LIKE '%' || :name || '%' AND mType LIKE '%' || :type || '%'")
+    List<MagicCard> getAllBy(String name, String type);
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

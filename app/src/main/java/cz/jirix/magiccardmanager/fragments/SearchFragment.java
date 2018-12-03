@@ -49,6 +49,7 @@ public class SearchFragment extends Fragment {
     private SimpleArrayWithDefValueAdapter<MagicColor> mAdapterColors;
     private MagicSetsSpinnerAdapter mAdapterSets;
     private SimpleArrayWithDefValueAdapter<MagicType> mAdapterTypes;
+    private boolean mIgnoreFirstStateChange;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -223,23 +224,33 @@ public class SearchFragment extends Fragment {
     }
 
     private void observeLoadingState() {
+        mIgnoreFirstStateChange = true;
         getViewModel().getLoadingState().observe(this, this::onLoadingStateChanged);
     }
 
     private void onLoadingStateChanged(String state) {
-        if (state.equals(getViewModel().getLastLoadingState())) {
+        if (state.equals(getViewModel().getLastLoadingState()) || mIgnoreFirstStateChange) {
+            mIgnoreFirstStateChange = false;
             return;
         }
         getViewModel().acknowledgeState(state);
 
         switch (state) {
             case CurrentSelectionRepository.LoadingState.NETWORK_ERROR:
-                Toast.makeText(getContext(), R.string.error_network_load_failed, Toast.LENGTH_SHORT).show();
+                showErrorToast();
                 mButtonSearch.showProgress(false);
                 break;
             case CurrentSelectionRepository.LoadingState.SUCCESS:
                 mButtonSearch.showProgress(false);
                 break;
+        }
+    }
+    
+    private void showErrorToast(){
+        if(getContext() != null) {
+            // without app context, toast gets weird styling
+            Toast toast = Toast.makeText(getContext().getApplicationContext(), R.string.error_network_load_failed, Toast.LENGTH_SHORT);
+            toast.show();
         }
     }
 
