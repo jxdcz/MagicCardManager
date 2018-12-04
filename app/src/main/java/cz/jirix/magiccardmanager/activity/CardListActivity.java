@@ -93,7 +93,7 @@ public class CardListActivity extends AppCompatActivity {
     }
 
     private void onCardsChanged(List<MagicCard> cards){
-        mCardListAdapter.setData(cards);
+        mCardListAdapter.setData(cards, getViewModel().getPreviousResultsCount());
         mListCardList.scrollToPosition(0);
         showEmptyListView(cards == null || cards.isEmpty());
     }

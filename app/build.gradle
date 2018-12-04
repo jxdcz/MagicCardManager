@@ -24,16 +24,19 @@ android {
 
 dependencies {
     def room_version = "1.1.1"
+    def arch_version = "1.1.1"
+    def supp_version = "28.0.0"
+
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation 'com.android.support:support-v4:28.0.0'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support:design:28.0.0'
-    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation "com.android.support:support-v4:$supp_version"
+    implementation "com.android.support:appcompat-v7:$supp_version"
+    implementation "com.android.support:design:$supp_version"
+    implementation "com.android.support:recyclerview-v7:$supp_version"
 
-    implementation 'android.arch.lifecycle:extensions:1.1.1'
-    implementation 'android.arch.lifecycle:viewmodel:1.1.1'
+    implementation "android.arch.lifecycle:extensions:$arch_version"
+    implementation "android.arch.lifecycle:viewmodel:$arch_version"
 
     implementation "android.arch.persistence.room:runtime:$room_version"
     implementation "android.arch.persistence.room:rxjava2:$room_version"
@@ -56,7 +59,10 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.2'
+
 
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.11.0'
     testImplementation 'androidx.test:core:1.0.0'

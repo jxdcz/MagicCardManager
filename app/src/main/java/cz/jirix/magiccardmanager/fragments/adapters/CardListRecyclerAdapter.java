@@ -15,11 +15,13 @@ import cz.jirix.magiccardmanager.model.MagicCard;
 
 public class CardListRecyclerAdapter extends RecyclerView.Adapter<CardListRecyclerAdapter.ViewHolder> {
 
+    private int mPreviousCount;
     private List<MagicCard> mData;
     private View.OnClickListener mOnClickListener;
 
     public CardListRecyclerAdapter(View.OnClickListener listener) {
         mData = new ArrayList<>();
+        mPreviousCount = 0;
         mOnClickListener = listener;
     }
 
@@ -32,7 +34,7 @@ public class CardListRecyclerAdapter extends RecyclerView.Adapter<CardListRecycl
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        holder.mIdView.setText(String.valueOf(position));
+        holder.mIdView.setText(String.valueOf(position + 1 + mPreviousCount));
         holder.mContentView.setText(mData.get(position).getName());
 
         holder.itemView.setTag(mData.get(position));
@@ -44,8 +46,9 @@ public class CardListRecyclerAdapter extends RecyclerView.Adapter<CardListRecycl
         return mData.size();
     }
 
-    public void setData(List<MagicCard> data) {
+    public void setData(List<MagicCard> data, int previousResultCount) {
         mData = data;
+        mPreviousCount = previousResultCount;
         notifyDataSetChanged();
     }
 

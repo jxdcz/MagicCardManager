@@ -37,7 +37,7 @@ public class CurrentSelectionRepository implements IRepository {
     private MutableLiveData<Integer> mPagesCount = new MutableLiveData<>();
     private MutableLiveData<List<MagicCard>> mCurrentCards = new MutableLiveData<>();
     private CardSearchCriteria mCurrentSearchCriteria;
-
+    private int mPageSize;
 
     public CurrentSelectionRepository(MagicCardApi cardApi, MagicCardDao cardDao, MagicSetDao setDao) {
         mCardApi = cardApi;
@@ -107,6 +107,7 @@ public class CurrentSelectionRepository implements IRepository {
     private void onNetworkLoadCardsSuccess(int page, Response<MagicCardsResponse> response){
         int returnedCount = Integer.parseInt(response.headers().get(MagicCardApi.HEADER_RESP_COUNT));
         int totalCount = Integer.parseInt(response.headers().get(MagicCardApi.HEADER_RESP_TOTAL_COUNT));
+        mPageSize = Integer.parseInt(response.headers().get(MagicCardApi.HEADER_RESP_PAGE_SIZE));
 
         int pages = returnedCount == 0 ? 1 : totalCount / returnedCount; // if we get no results
         mPagesCount.postValue(pages);
@@ -173,6 +174,7 @@ public class CurrentSelectionRepository implements IRepository {
     private void resetPages() {
         mPagesCount.postValue(1);
         mCurrentPage.postValue(1);
+        mPageSize = 0;
     }
 
     public CardSearchCriteria getCurrentSearchCriteria() {
@@ -201,6 +203,10 @@ public class CurrentSelectionRepository implements IRepository {
 
     public LiveData<Integer> getCurrentCardsPage() {
         return mCurrentPage;
+    }
+
+    public int getCardsPerPage() {
+        return mPageSize;
     }
 
     public static class LoadingState {

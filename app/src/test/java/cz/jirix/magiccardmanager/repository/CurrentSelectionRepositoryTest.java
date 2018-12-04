@@ -47,12 +47,10 @@ public class CurrentSelectionRepositoryTest extends BaseTest{
         makeRxSync();
     }
 
-
     @After
     public void after(){
         resetRxSync();
     }
-
 
     @Test
     public void testSelectingCard(){

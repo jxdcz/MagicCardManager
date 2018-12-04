@@ -32,7 +32,7 @@ public class MagicSet {
     @SerializedName("block")
     private String mBlock;
 
-    public MagicSet(String code, String name, String type, String border, int mkmId, String releaseDate, String block) {
+    public MagicSet(@NonNull String code, String name, String type, String border, int mkmId, String releaseDate, String block) {
         mCode = code;
         mName = name;
         mType = type;
@@ -42,11 +42,12 @@ public class MagicSet {
         mBlock = block;
     }
 
+    @NonNull
     public String getCode() {
         return mCode;
     }
 
-    public void setCode(String code) {
+    public void setCode(@NonNull String code) {
         mCode = code;
     }
 

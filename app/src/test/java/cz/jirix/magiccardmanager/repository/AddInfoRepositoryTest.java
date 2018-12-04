@@ -123,7 +123,7 @@ public class AddInfoRepositoryTest extends BaseTest{
     }
 
     private String loadResourceJSON(String fileName) throws IOException {
-        //TODO wanted to use mockserver
+        //TODO will use mockserver in the future
         URL resource = getClass().getClassLoader().getResource(fileName);
         InputStream is = (BufferedInputStream) resource.getContent();
         StringBuilder SB = new StringBuilder();

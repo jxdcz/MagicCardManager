@@ -47,4 +47,10 @@ public class CardListViewModel extends AndroidViewModel {
     public void onPrevPage() {
         mSelectionRepository.loadCardsPrevPage();
     }
+
+    public int getPreviousResultsCount() {
+        int currentPage = getCurrentCardsPage().getValue() == null ? 1 : getCurrentCardsPage().getValue();
+        int itemsPerPage = mSelectionRepository.getCardsPerPage();
+        return ((currentPage - 1) * itemsPerPage);
+    }
 }
