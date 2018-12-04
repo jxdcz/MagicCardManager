@@ -24,5 +24,5 @@ Roadmap / TODO list
 * More tests
 * Extract dimensions to dimens.xml
 * Extract CardListActivity to a fragment
-* Better layouts, especially for the card list - show more info for the items
+* Better layouts, especially for the card list - show more info for the items, and search screen for tablets
 * More TODOs in code
