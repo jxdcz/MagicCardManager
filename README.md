@@ -22,7 +22,8 @@ Technical features:
 Roadmap / TODO list
 * Filtering by power/toughness doesn't work yet - the remote api doesn't support a direct search, will need to use more sophisticated methods
 * More tests
+* Launcher icon
 * Extract dimensions to dimens.xml
-* Extract CardListActivity to a fragment
+* Extract CardListActivity functionality to a fragment
 * Better layouts, especially for the card list - show more info for the items, and search screen for tablets
 * More TODOs in code
